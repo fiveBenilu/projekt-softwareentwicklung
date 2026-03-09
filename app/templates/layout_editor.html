@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thekenlayout bearbeiten</title>
+    <style>
+        #editor {
+            width: 100%;
+            height: 600px;
+            background-color: #f0f0f0;
+            position: relative;
+            border: 1px solid #ccc;
+        }
+        .tisch {
+            width: 100px;
+            height: 100px;
+            background-color: #ffeaa7;
+            border: 2px solid #d35400;
+            position: absolute;
+            cursor: move;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        #saveBtn {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Thekenlayout bearbeiten</h2>
+    <div id="editor"></div>
+    <button id="saveBtn">Änderungen speichern</button>
+
+    <script>
+        async function ladeTische() {
+            const res = await fetch('/layout/all');
+            const tische = await res.json();
+            const editor = document.getElementById('editor');
+            editor.innerHTML = '';
+    
+            tische.forEach(tisch => {
+                const el = document.createElement('div');
+                el.className = 'tisch';
+                el.style.left = tisch.pos_x + 'px';
+                el.style.top = tisch.pos_y + 'px';
+                el.style.width = tisch.width + 'px';
+                el.style.height = tisch.height + 'px';
+                el.innerText = tisch.tisch_id;
+                el.dataset.id = tisch.tisch_id;
+    
+                let isDragging = false;
+                let offsetX = 0;
+                let offsetY = 0;
+    
+                el.addEventListener('mousedown', function (e) {
+                    isDragging = true;
+                    offsetX = e.clientX - el.offsetLeft;
+                    offsetY = e.clientY - el.offsetTop;
+    
+                    document.addEventListener('mousemove', move);
+                    document.addEventListener('mouseup', stop);
+                });
+    
+                function move(e) {
+                    if (!isDragging) return;
+                    el.style.left = (e.clientX - offsetX) + 'px';
+                    el.style.top = (e.clientY - offsetY) + 'px';
+                }
+    
+                function stop() {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', move);
+                    document.removeEventListener('mouseup', stop);
+                }
+    
+                editor.appendChild(el);
+            });
+        }
+    
+        document.getElementById('saveBtn').onclick = async function () {
+            const daten = Array.from(document.getElementsByClassName('tisch')).map(tisch => ({
+                tisch_id: tisch.dataset.id,
+                pos_x: parseInt(tisch.style.left),
+                pos_y: parseInt(tisch.style.top),
+                width: parseInt(tisch.style.width),
+                height: parseInt(tisch.style.height)
+            }));
+    
+            const res = await fetch('/layout/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(daten)
+            });
+    
+            const result = await res.json();
+            alert(result.message || "Gespeichert!");
+        };
+    
+        ladeTische();
+    </script>
+</body>
+</html>

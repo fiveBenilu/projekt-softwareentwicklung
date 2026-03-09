@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "Latte Macchiato",
+    "preis": 4.0
+  },
+  {
+    "id": 2,
+    "name": "Cappuccino",
+    "preis": 3.0
+  },
+  {
+    "id": 3,
+    "name": "Croissant",
+    "preis": 2.0
+  },
+  {
+    "id": 4,
+    "name": "Eggcellence",
+    "preis": 9.0,
+    "beschreibung": "Ei, Brot, etc."
+  }
+]

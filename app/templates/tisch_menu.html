@@ -1,0 +1,10 @@
+{% extends "base_mobile.html" %}
+{% block content %}
+  <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}">📖 Speisekarte</a>
+  <form action="{{ url_for('tisch.hilfe', tisch_id=tisch_id) }}" method="post">
+    <button type="submit">🙋 Hilfe anfordern</button>
+  </form>
+  <form action="{{ url_for('tisch.rechnung', tisch_id=tisch_id) }}" method="post">
+    <button type="submit">💶 Um Rechnung bitten</button>
+  </form>
+{% endblock %}

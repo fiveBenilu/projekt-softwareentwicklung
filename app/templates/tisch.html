@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Tisch {{ tisch_id }} – Bestellung</title>
+</head>
+<body>
+    <h1>🪑 Tisch {{ tisch_id }}</h1>
+
+    <h2>🧾 Etwas bestellen</h2>
+    <form method="POST" action="{{ url_for('tisch.bestellen', tisch_id=tisch_id) }}">
+        <label>Produkt:</label>
+        <input type="text" name="artikel" required><br>
+        <label>Menge:</label>
+        <input type="number" name="menge" value="1" min="1"><br>
+        <button type="submit">✅ Bestellung senden</button>
+    </form>
+
+    <hr>
+
+    <h2>🙋 Hilfe rufen</h2>
+    <form method="POST" action="{{ url_for('tisch.hilfe', tisch_id=tisch_id) }}">
+        <button type="submit">🙋 Ich brauche Hilfe</button>
+    </form>
+
+    <h2>💶 Rechnung anfordern</h2>
+    <form method="POST" action="{{ url_for('tisch.rechnung', tisch_id=tisch_id) }}">
+        <button type="submit">💶 Rechnung bitte</button>
+    </form>
+
+    <p><a href="{{ url_for('home.home') }}">⬅️ Zurück zur Startseite</a></p>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Danke!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #222;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .container h1 {
+            font-size: 1.8rem;
+            color: #222;
+            margin-bottom: 0.5rem;
+        }
+
+        .container p {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 2rem;
+        }
+
+        .container a {
+            text-decoration: none;
+            background-color: #222;
+            color: white;
+            padding: 0.6rem 1.4rem;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .container a:hover {
+            background-color: #222;
+        }
+
+        .emoji {
+            font-size: 2rem;
+            margin-top: 0.5rem;
+        }
+  
+        .zurueck-button {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+         }
+
+        .zurueck-button:hover {
+            background-color: #222;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Danke! 👌</h1>
+        <p>Deine Anfrage vom Tisch {{ tisch_id }} wurde erfolgreich übermittelt.</p>
+        <div class="emoji">🧾 ☕ 🧁</div>
+        <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}">Zurück zur Speisekarte</a>
+    </div>
+</body>
+</html>

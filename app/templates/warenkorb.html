@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>🛒 Warenkorb – Tisch {{ tisch_id }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 1rem;
+            background: #fff;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .gesamt {
+            text-align: right;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        .aktionen {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            margin: 0.2rem;
+            font-size: 1rem;
+        }
+
+        a {
+            text-decoration: none;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h2>🛒 Warenkorb – Tisch {{ tisch_id }}</h2>
+
+    {% if cart %}
+    <ul>
+        {% for item in cart %}
+            <li>
+                {{ item.menge }} × {{ item.artikel }} – {{ "%.2f"|format(item.preis * item.menge) }} €
+                <a href="{{ url_for('tisch.warenkorb_entfernen', tisch_id=tisch_id, remove=loop.index0) }}" title="Entfernen">❌</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+        <div class="gesamt">
+            Gesamt: {{ "%.2f"|format(gesamtpreis) }} €
+        </div>
+
+        <div class="aktionen">
+            <form method="POST" action="{{ url_for('tisch.bestellen', tisch_id=tisch_id) }}">
+                <button type="submit">✅ Bestellung abschicken</button>
+            </form>
+            <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}">⬅️ Zurück zur Speisekarte</a>
+        </div>
+    {% else %}
+        <p>🛒 Dein Warenkorb ist leer.</p>
+        <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}">⬅️ Zurück zur Speisekarte</a>
+    {% endif %}
+</body>
+
+<style>
+    a[title="Entfernen"] {
+        color: red;
+        margin-left: 10px;
+        font-weight: bold;
+        text-decoration: none;
+    }
+</style>
+</html>

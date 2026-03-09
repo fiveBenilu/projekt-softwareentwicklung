@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Bestellung starten – Café Digital</title>
+</head>
+<body>
+    <h1>📋 Bestellung starten</h1>
+
+    <p><a href="{{ url_for('home.home') }}">🔙 Zurück zur Startseite</a></p>
+
+    <h2>Wähle einen Tisch:</h2>
+    <ul>
+        {% for tisch in range(1, tisch_anzahl + 1) %}
+            <li><a href="{{ url_for('tisch.tisch', tisch_id=tisch) }}">🪑 Tisch {{ tisch }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

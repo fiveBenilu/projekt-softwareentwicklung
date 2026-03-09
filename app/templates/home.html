@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Café Digital – Übersicht</title>
+</head>
+<body>
+    <h1>☕ Willkommen im Café-Digital-Adminbereich</h1>
+
+    <h2>📋 Setup-Status</h2>
+    {% if setup %}
+        <ul>
+            <li><strong>Name:</strong> {{ setup.name }}</li>
+            <li><strong>Adresse:</strong> {{ setup.address }}</li>
+            <li><strong>Telefon:</strong> {{ setup.phone }}</li>
+            <li><strong>Sprache:</strong> {{ setup.language }}</li>
+            <li><strong>Anzahl Tische:</strong> {{ setup.tische }}</li>
+        </ul>
+    {% else %}
+        <p style="color: red;">❌ Kein Setup gefunden! Bitte zuerst einrichten.</p>
+    {% endif %}
+
+    <p><a href="{{ url_for('home.bestellung') }}">📋 Bestellung aufgeben</a></p>
+    <h2>⚙️ Schnellzugriff</h2>
+    <ul>
+        <li><a href="{{ url_for('admin.qrcodes') }}">📱 QR-Codes generieren</a></li>
+        <li><a href="{{ url_for('theke.theke') }}">🧾 Thekenübersicht anzeigen</a></li>
+        <li><a href="{{ url_for('admin.menu') }}">📋 Speisekarte verwalten</a></li>
+        <li><a href="{{ url_for('admin.show_layout_editor') }}">🪑 Tischlayout bearbeiten</a></li>
+    </ul>
+</body>
+</html>

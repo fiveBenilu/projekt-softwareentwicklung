@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>ANTARES – Tisch {{ tisch_id }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        /* Grundlegendes Layout */
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .burger, .cart {
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .title {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 2.4rem;
+            font-weight: bold;
+        }
+
+        .menu {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 60px;
+            left: 10px;
+            background: white;
+            border: 1px solid #ccc;
+            padding: 1rem;
+            z-index: 10;
+        }
+
+        .menu a {
+            margin: 5px 0;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .show {
+            display: flex;
+        }
+
+        .section {
+            padding: 1rem;
+        }
+
+        .produkt {
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        .produkt form {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: green;
+        }
+        h3 {
+        margin-top: 2rem;
+        font-size: 1.1rem;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 0.3rem;
+    }
+
+    .produktzeile {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1rem 0;
+    border-bottom: 1px solid #eee;
+    gap: 1rem;
+}
+
+.produkt-links {
+    flex: 1;
+}
+
+.produkt-name { 
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+.produkt-beschreibung {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+.produkt-rechts {
+    flex-shrink: 0;
+    width: 150px;  /* ← Feste Breite für rechte Spalte */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+}
+
+.preis {
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+.menge-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.menge-form input[type="number"] {
+    width: 3rem;
+    padding: 0.2rem;
+}
+
+.menge-form button {
+    padding: 0.3rem 0.6rem;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.ausverkauft {
+    opacity: 0.5;
+    pointer-events: none;
+}
+.menu form button {
+    background-color: #222;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.menu form button:hover {
+    background-color: #444;
+}
+
+.hilfe-btn {
+    background-color: #f1c40f;
+    color: #000;
+}
+
+.rechnung-btn {
+    background-color: #2ecc71;
+    color: white;
+}
+    </style>
+</head>
+<body>
+    <header>
+        <button class="burger" onclick="toggleMenu()">☰</button>
+        <div class="title">ANTARES</div>
+        <a class="cart" href="{{ url_for('tisch.warenkorb_ansehen', tisch_id=tisch_id) }}">🛒</a>
+    </header>
+
+    <nav class="menu" id="menu">
+        <a href="#speisekarte">📋 Speisekarte</a>
+        <form action="{{ url_for('tisch.hilfe', tisch_id=tisch_id) }}" method="POST">
+            <button type="submit" class="hilfe-btn">🙋 Hilfe anfordern</button>
+        </form>
+        <form action="{{ url_for('tisch.rechnung', tisch_id=tisch_id) }}" method="POST">
+            <button type="submit" class="rechnung-btn">💶 Rechnung bitten</button>
+        </form>
+    </nav>
+
+    <section class="section" id="speisekarte">
+        <h2>📋 Speisekarte</h2>
+        {% for kategorie, produkte in artikel_gruppen.items() %}
+            <h3>{{ kategorie }}</h3>
+            {% for produkt in produkte %}
+            <div class="produkt {% if not produkt.verfuegbar %}ausverkauft{% endif %}">
+                <div class="produktzeile">
+                    <div class="produkt-links">
+                        <div class="produkt-name">{{ produkt.name }}</div>
+                        {% if produkt.beschreibung %}
+                            <div class="produkt-beschreibung">{{ produkt.beschreibung }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="produkt-rechts">
+                        <div class="preis">{{ "%.2f"|format(produkt.preis) }} €</div>
+                        
+                        {% if produkt.verfuegbar %}
+                            <form class="menge-form" method="POST" action="{{ url_for('tisch.in_warenkorb', tisch_id=tisch_id) }}">
+                                <input type="hidden" name="artikel" value="{{ produkt.name }}">
+                                <input type="number" name="menge" value="1" min="1">
+                                <button type="submit">➕</button>
+                            </form>
+                        {% else %}
+                            <div style="color: red; font-weight: bold;">❌ Heute ausverkauft</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        {% endfor %}
+    </section>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="footer">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("menu").classList.toggle("show");
+        }
+    </script>
+</body>
+</html>

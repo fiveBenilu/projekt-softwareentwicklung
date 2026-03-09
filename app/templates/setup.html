@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Café Setup</title>
+</head>
+<body>
+  <h1>Café Setup</h1>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul>
+        {% for message in messages %}
+          <li style="color:green;">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST">
+    <label>Name:</label><br>
+    <input type="text" name="name" required><br><br>
+
+    <label>Adresse:</label><br>
+    <textarea name="address" required></textarea><br><br>
+
+    <label>Telefon:</label><br>
+    <input type="text" name="phone" required><br><br>
+
+    <label>Sprache:</label><br>
+    <select name="language" required>
+      <option value="de">Deutsch</option>
+      <option value="en">Englisch</option>
+      <option value="tr">Türkisch</option>
+    </select><br><br>
+
+    <label for="tables">Anzahl Tische:</label>
+    <input type="number" id="tables" name="tables" min="1" required>    
+
+    <button type="submit">Speichern</button>
+  </form>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title or "Cafe Antares" }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_mobile.css') }}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap">
+</head>
+<body>
+  <header class="topbar">
+    <div class="menu-icon">☰</div>
+    <div class="branding">
+      <div class="title">Cafe Antares</div>
+      <div class="subtitle">Tisch {{ tisch_id }}</div>
+    </div>
+    <div class="cart-icon">🛒</div>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
