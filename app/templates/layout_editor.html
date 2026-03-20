@@ -1,105 +1,138 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Thekenlayout bearbeiten</title>
-    <style>
-        #editor {
-            width: 100%;
-            height: 600px;
-            background-color: #f0f0f0;
-            position: relative;
-            border: 1px solid #ccc;
-        }
-        .tisch {
-            width: 100px;
-            height: 100px;
-            background-color: #ffeaa7;
-            border: 2px solid #d35400;
-            position: absolute;
-            cursor: move;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        #saveBtn {
-            margin-top: 10px;
-            padding: 10px;
-            font-size: 16px;
-        }
-    </style>
-</head>
-<body>
-    <h2>Thekenlayout bearbeiten</h2>
-    <div id="editor"></div>
-    <button id="saveBtn">Änderungen speichern</button>
+{% extends "base.html" %}
 
-    <script>
-        async function ladeTische() {
-            const res = await fetch('/layout/all');
-            const tische = await res.json();
-            const editor = document.getElementById('editor');
-            editor.innerHTML = '';
-    
-            tische.forEach(tisch => {
-                const el = document.createElement('div');
-                el.className = 'tisch';
-                el.style.left = tisch.pos_x + 'px';
-                el.style.top = tisch.pos_y + 'px';
-                el.style.width = tisch.width + 'px';
-                el.style.height = tisch.height + 'px';
-                el.innerText = tisch.tisch_id;
-                el.dataset.id = tisch.tisch_id;
-    
-                let isDragging = false;
-                let offsetX = 0;
-                let offsetY = 0;
-    
-                el.addEventListener('mousedown', function (e) {
-                    isDragging = true;
-                    offsetX = e.clientX - el.offsetLeft;
-                    offsetY = e.clientY - el.offsetTop;
-    
-                    document.addEventListener('mousemove', move);
-                    document.addEventListener('mouseup', stop);
-                });
-    
-                function move(e) {
-                    if (!isDragging) return;
-                    el.style.left = (e.clientX - offsetX) + 'px';
-                    el.style.top = (e.clientY - offsetY) + 'px';
-                }
-    
-                function stop() {
-                    isDragging = false;
-                    document.removeEventListener('mousemove', move);
-                    document.removeEventListener('mouseup', stop);
-                }
-    
-                editor.appendChild(el);
+{% block title %}Thekenlayout bearbeiten{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold"><i class="fa-solid fa-border-all text-primary"></i> Thekenlayout bearbeiten</h2>
+        <p class="text-muted">Ziehen Sie die Tische an die gewünschte Position, um das Ladenlayout abzubilden.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <button id="saveBtn" class="btn btn-success mt-3 shadow-sm btn-lg"><i class="fa-solid fa-floppy-disk"></i> Layout Speichern</button>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-dark text-white pt-3 pb-2 rounded-top">
+        <h6 class="mb-0 py-1"><i class="fa-solid fa-up-down-left-right text-warning"></i> Drag & Drop Editor</h6>
+    </div>
+    <div class="card-body p-0">
+        <div id="editor" style="width: 100%; height: 600px; background-color: #f8f9fa; position: relative; overflow: hidden; background-image: radial-gradient(#ced4da 1px, transparent 1px); background-size: 20px 20px;">
+            <!-- Tables rendered via JS -->
+        </div>
+    </div>
+</div>
+
+<style>
+    .tisch {
+        width: 100px;
+        height: 100px;
+        background-color: #fff3cd;
+        border: 3px solid #ffc107;
+        border-radius: 12px;
+        position: absolute;
+        cursor: grab;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #856404;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.1s, box-shadow 0.1s;
+        user-select: none;
+    }
+    .tisch:active {
+        cursor: grabbing;
+        transform: scale(1.05);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        z-index: 100;
+    }
+    .tisch i {
+        font-size: 1.5rem;
+    }
+</style>
+
+<script>
+    async function ladeTische() {
+        const res = await fetch('/layout/all');
+        const tische = await res.json();
+        const editor = document.getElementById('editor');
+        editor.innerHTML = '';
+
+        tische.forEach(tisch => {
+            const el = document.createElement('div');
+            el.className = 'tisch';
+            el.innerHTML = '<div class="text-center"><i class="fa-solid fa-chair d-block mb-1"></i>Tisch ' + tisch.tisch_id + '</div>';
+            el.style.left = tisch.pos_x + 'px';
+            el.style.top = tisch.pos_y + 'px';
+            el.style.width = tisch.width + 'px';
+            el.style.height = tisch.height + 'px';
+            el.dataset.id = tisch.tisch_id;
+
+            let isDragging = false;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            el.addEventListener('mousedown', function (e) {
+                isDragging = true;
+                offsetX = e.clientX - el.offsetLeft;
+                offsetY = e.clientY - el.offsetTop;
+                document.addEventListener('mousemove', move);
+                document.addEventListener('mouseup', stop);
             });
-        }
-    
-        document.getElementById('saveBtn').onclick = async function () {
-            const daten = Array.from(document.getElementsByClassName('tisch')).map(tisch => ({
-                tisch_id: tisch.dataset.id,
-                pos_x: parseInt(tisch.style.left),
-                pos_y: parseInt(tisch.style.top),
-                width: parseInt(tisch.style.width),
-                height: parseInt(tisch.style.height)
-            }));
-    
-            const res = await fetch('/layout/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(daten)
-            });
-    
-            const result = await res.json();
-            alert(result.message || "Gespeichert!");
-        };
-    
-        ladeTische();
-    </script>
-</body>
-</html>
+
+            function move(e) {
+                if (!isDragging) return;
+                const editorRect = editor.getBoundingClientRect();
+                
+                let newX = e.clientX - offsetX;
+                let newY = e.clientY - offsetY;
+
+                el.style.left = newX + 'px';
+                el.style.top = newY + 'px';
+            }
+
+            function stop() {
+                isDragging = false;
+                document.removeEventListener('mousemove', move);
+                document.removeEventListener('mouseup', stop);
+            }
+
+            editor.appendChild(el);
+        });
+    }
+
+    document.getElementById('saveBtn').onclick = async function () {
+        const daten = Array.from(document.getElementsByClassName('tisch')).map(tisch => ({
+            tisch_id: tisch.dataset.id,
+            pos_x: parseInt(tisch.style.left) || 0,
+            pos_y: parseInt(tisch.style.top) || 0,
+            width: parseInt(tisch.style.width) || 100,
+            height: parseInt(tisch.style.height) || 100
+        }));
+
+        const res = await fetch('/layout/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(daten)
+        });
+
+        const result = await res.json();
+        
+        // Custom Alert anstatt normalem alert()
+        const alertHtml = `<div class="alert alert-success alert-dismissible fade show mt-3 shadow-sm" role="alert">
+            <i class="fa-solid fa-check-circle me-2"></i> ${result.message || "Erfolgreich gespeichert!"}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
+        document.querySelector('.row.mb-4').insertAdjacentHTML('afterend', alertHtml);
+        
+        setTimeout(() => {
+            const alertElement = document.querySelector('.alert');
+            if(alertElement) alertElement.remove();
+        }, 3000);
+    };
+
+    ladeTische();
+</script>
+{% endblock %}

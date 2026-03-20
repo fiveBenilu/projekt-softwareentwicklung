@@ -3,51 +3,70 @@
 {% block title %}QR-Codes{% endblock %}
 
 {% block content %}
-    <h1>QR Codes</h1>
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold"><i class="fa-solid fa-qrcode text-primary"></i> QR-Codes verwalten</h2>
+        <p class="text-muted">Generieren Sie QR-Codes für Ihre Tische, die Kunden mit dem Smartphone scannen können.</p>
+    </div>
+</div>
 
-    <form method="POST">
-        <label for="tisch_id"><strong>Tisch auswählen:</strong></label>
-        <select name="tisch_id">
-            {% for tisch in range(1, anzahl_tische + 1) %}
-                <option value="{{ tisch }}">Tisch {{ tisch }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit">➕ Generieren</button>
-    </form>
-
-    {% if generierter_qr %}
-        <div class="qrcode">
-            <img src="{{ url_for('static', filename='qrcodes/' + generierter_qr.filename) }}" width="150">
-            <div>
-                <p><strong>Tisch {{ generierter_qr.tisch }}</strong></p>
-                <a href="{{ url_for('static', filename='qrcodes/' + generierter_qr.filename) }}" download>⬇️ Download</a> |
-                <a href="{{ generierter_qr.link }}" target="_blank">🌐 Öffnen</a>
-            </div>
-        </div>
-    {% endif %}
-
-    <hr>
-    <h2>Bereits generierte QR-Codes</h2>
-
-    {% for qr in qrcodes %}
-        <div class="qrcode">
-            <img src="{{ url_for('static', filename='qrcodes/' + qr) }}" width="100">
-            <div>
-                <p>{{ qr }}</p>
-                <a href="{{ url_for('static', filename='qrcodes/' + qr) }}" download>⬇️ Download</a>
-                |
-                <a href="{{ url_for('static', filename='qrcodes/' + qr) }}" target="_blank">🌐 Öffnen</a>
-            </div>
-        </div>
-    {% endfor %}
-
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul style="color: green;">
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="alert alert-success shadow-sm mb-4">
+            <ul class="mb-0 px-3">
                 {% for message in messages %}
                     <li>{{ message }}</li>
                 {% endfor %}
             </ul>
-        {% endif %}
-    {% endwith %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="card shadow-sm border-0 mb-5" style="max-width: 500px;">
+    <div class="card-body bg-light rounded m-3">
+        <form method="POST" class="d-flex align-items-end gap-3">
+            <div class="flex-grow-1">
+                <label class="form-label fw-bold">Tisch auswählen:</label>
+                <select name="tisch_id" class="form-select border-0 shadow-sm">
+                    {% for tisch in range(1, anzahl_tische + 1) %}
+                        <option value="{{ tisch }}">Tisch {{ tisch }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary shadow-sm"><i class="fa-solid fa-plus"></i> Generieren</button>
+        </form>
+    </div>
+</div>
+
+{% if generierter_qr %}
+<div class="alert alert-info shadow-sm d-flex align-items-center mb-5 border-0" style="max-width: 600px;">
+    <img src="{{ url_for('static', filename='qrcodes/' + generierter_qr.filename) }}" width="120" class="rounded border border-info bg-white me-4">
+    <div>
+        <h5 class="fw-bold text-dark mb-2">Neu generiert: Tisch {{ generierter_qr.tisch }}</h5>
+        <a href="{{ url_for('static', filename='qrcodes/' + generierter_qr.filename) }}" class="btn btn-sm btn-success me-2 rounded-pill shadow-sm" download><i class="fa-solid fa-download"></i> Download</a>
+        <a href="{{ generierter_qr.link }}" class="btn btn-sm btn-outline-primary rounded-pill shadow-sm" target="_blank"><i class="fa-solid fa-globe"></i> Öffnen</a>
+    </div>
+</div>
+{% endif %}
+
+<h5 class="fw-bold mb-3 mt-4 border-bottom pb-2"><i class="fa-solid fa-images text-secondary"></i> Bereits generierte QR-Codes</h5>
+<div class="row g-4">
+    {% for qr in qrcodes %}
+        <div class="col-auto">
+            <div class="card shadow-sm border-0 text-center p-3 h-100 bg-white" style="width: 180px; transition: transform 0.2s;">
+                <img src="{{ url_for('static', filename='qrcodes/' + qr) }}" class="img-fluid rounded mb-3 border bg-light">
+                <p class="small text-muted mb-3 text-truncate fw-bold" title="{{ qr }}">{{ qr }}</p>
+                <div class="mt-auto d-grid gap-2">
+                    <a href="{{ url_for('static', filename='qrcodes/' + qr) }}" class="btn btn-sm btn-outline-success" download><i class="fa-solid fa-download"></i> Speichern</a>
+                    <a href="{{ url_for('static', filename='qrcodes/' + qr) }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="fa-solid fa-eye"></i> Öffnen</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    {% if not qrcodes %}
+        <div class="col-12">
+            <div class="alert alert-light text-muted border shadow-sm"><i class="fa-solid fa-circle-info"></i> Keine QR-Codes gefunden. Bitte generieren Sie einen.</div>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

@@ -27,12 +27,14 @@ def create_app():
     from .routes.theke_routes import theke_bp
     from .routes.tisch_routes import tisch_bp
     from .routes.layout_routes import layout_bp
+    from .routes.setup import main as main_setup_bp
 
     app.register_blueprint(home_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(theke_bp)
     app.register_blueprint(tisch_bp)
     app.register_blueprint(layout_bp)
+    app.register_blueprint(main_setup_bp)
 
     @app.route('/')
     def index():

@@ -1,91 +1,59 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>🛒 Warenkorb – Tisch {{ tisch_id }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            font-family: sans-serif;
-            padding: 1rem;
-            background: #fff;
-        }
+{% extends "base_mobile.html" %}
 
-        h2 {
-            text-align: center;
-        }
+{% block content %}
+<div class="text-center mb-4">
+    <div class="d-inline-flex bg-primary text-white rounded-circle align-items-center justify-content-center shadow-sm mb-3" style="width: 80px; height: 80px;">
+        <i class="fa-solid fa-basket-shopping fs-1"></i>
+    </div>
+    <h2 class="fw-bold" style="font-family: 'Poppins', sans-serif;">Dein Warenkorb</h2>
+    <p class="text-muted">Tisch {{ tisch_id }}</p>
+</div>
 
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        li {
-            margin: 0.5rem 0;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .gesamt {
-            text-align: right;
-            font-weight: bold;
-            margin-top: 1rem;
-        }
-
-        .aktionen {
-            margin-top: 2rem;
-            text-align: center;
-        }
-
-        button {
-            padding: 0.5rem 1rem;
-            margin: 0.2rem;
-            font-size: 1rem;
-        }
-
-        a {
-            text-decoration: none;
-            color: #333;
-        }
-    </style>
-</head>
-<body>
-    <h2>🛒 Warenkorb – Tisch {{ tisch_id }}</h2>
-
-    {% if cart %}
-    <ul>
+{% if cart %}
+<div class="card shadow-sm border-0 rounded-4 mb-4 overflow-hidden">
+    <ul class="list-group list-group-flush">
         {% for item in cart %}
-            <li>
-                {{ item.menge }} × {{ item.artikel }} – {{ "%.2f"|format(item.preis * item.menge) }} €
-                <a href="{{ url_for('tisch.warenkorb_entfernen', tisch_id=tisch_id, remove=loop.index0) }}" title="Entfernen">❌</a>
-            </li>
+        <li class="list-group-item p-3 d-flex justify-content-between align-items-center">
+            <div>
+                <span class="badge bg-secondary rounded-pill me-2">{{ item.menge }}x</span>
+                <span class="fw-bold" style="font-family: 'Poppins', sans-serif;">{{ item.artikel }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="fw-bold text-primary">{{ "%.2f"|format(item.preis * item.menge) }} €</span>
+                <a href="{{ url_for('tisch.warenkorb_entfernen', tisch_id=tisch_id, remove=loop.index0) }}" class="text-danger" title="Entfernen">
+                    <i class="fa-solid fa-circle-xmark fs-4"></i>
+                </a>
+            </div>
+        </li>
         {% endfor %}
     </ul>
-
-        <div class="gesamt">
-            Gesamt: {{ "%.2f"|format(gesamtpreis) }} €
+    <div class="card-footer bg-dark text-white p-3 border-0">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-uppercase small" style="letter-spacing: 1px;">Gesamtsumme</span>
+            <span class="fs-4 fw-bold">{{ "%.2f"|format(gesamtpreis) }} €</span>
         </div>
+    </div>
+</div>
 
-        <div class="aktionen">
-            <form method="POST" action="{{ url_for('tisch.bestellen', tisch_id=tisch_id) }}">
-                <button type="submit">✅ Bestellung abschicken</button>
-            </form>
-            <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}">⬅️ Zurück zur Speisekarte</a>
-        </div>
-    {% else %}
-        <p>🛒 Dein Warenkorb ist leer.</p>
-        <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}">⬅️ Zurück zur Speisekarte</a>
-    {% endif %}
-</body>
+<div class="d-grid gap-3 mb-5">
+    <form method="POST" action="{{ url_for('tisch.bestellen', tisch_id=tisch_id) }}" class="m-0">
+        <button type="submit" class="btn btn-success btn-lg w-100 py-3 rounded-pill fw-bold shadow">
+            <i class="fa-solid fa-check-double me-2"></i> Jetzt Bestellen
+        </button>
+    </form>
+    <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}" class="btn btn-outline-secondary py-3 rounded-pill fw-bold bg-white">
+        <i class="fa-solid fa-plus me-1"></i> Mehr hinzufügen
+    </a>
+</div>
 
-<style>
-    a[title="Entfernen"] {
-        color: red;
-        margin-left: 10px;
-        font-weight: bold;
-        text-decoration: none;
-    }
-</style>
-</html>
+{% else %}
+<div class="text-center py-5">
+    <div class="alert alert-light border shadow-sm rounded-4 mb-4 py-4">
+        <p class="mb-0 fs-5 text-muted"><i class="fa-solid fa-basket-shopping fa-2x mb-3 d-block text-secondary"></i>🛒 Dein Warenkorb ist leider leer.</p>
+    </div>
+    <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm fw-bold">
+        <i class="fa-solid fa-utensils me-2"></i> Zurück zur Speisekarte
+    </a>
+</div>
+{% endif %}
+{% endblock %}

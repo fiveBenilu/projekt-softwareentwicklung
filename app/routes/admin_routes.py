@@ -3,6 +3,7 @@ from app import db                    # <-- WICHTIG: Das db aus __init__.py impo
 from app.models import Artikel       # <-- Modelle importieren
 import os
 import json 
+import qrcode
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -28,8 +29,8 @@ def qrcodes():
 
     if request.method == 'POST':
         tisch_id = int(request.form.get('tisch_id'))
-        base_url = "http://localhost:5000/tisch/"
-        url = f"{base_url}{tisch_id}"
+        # Dynamisch die URL für den Tisch generieren
+        url = url_for('tisch.tisch', tisch_id=tisch_id, _external=True)
 
         filename = f"tisch_{tisch_id}.png"
         filepath = os.path.join(output_dir, filename)
@@ -64,7 +65,12 @@ def qrcodes():
 def menu():
     if request.method == 'POST':
         name = request.form.get('name')
-        preis = float(request.form.get('preis'))
+        try:
+            preis = float(request.form.get('preis', 0.0))
+        except ValueError:
+            flash("❌ Ungültiger Preis!")
+            return redirect(url_for('admin.menu'))
+            
         beschreibung = request.form.get('beschreibung')
         kategorie = request.form.get('kategorie')  # <-- Ergänzt
 
@@ -109,8 +115,6 @@ def edit_produkt(produkt_id):
             return redirect(url_for('admin.menu'))
         except ValueError:
             flash("❌ Ungültiger Preis!")
-
-    return render_template('admin_edit_menu.html', produkt=artikel)
 
     return render_template('admin_edit_menu.html', produkt=artikel)
 

@@ -1,79 +1,37 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Danke!</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f9f9f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #222;
-        }
+{% extends "base_mobile.html" %}
 
-        .container {
-            background: white;
-            padding: 2rem 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-
-        .container h1 {
-            font-size: 1.8rem;
-            color: #222;
-            margin-bottom: 0.5rem;
-        }
-
-        .container p {
-            font-size: 1rem;
-            color: #555;
-            margin-bottom: 2rem;
-        }
-
-        .container a {
-            text-decoration: none;
-            background-color: #222;
-            color: white;
-            padding: 0.6rem 1.4rem;
-            border-radius: 8px;
-            font-weight: bold;
-            transition: background-color 0.2s ease;
-        }
-
-        .container a:hover {
-            background-color: #222;
-        }
-
-        .emoji {
-            font-size: 2rem;
-            margin-top: 0.5rem;
-        }
-  
-        .zurueck-button {
-        text-align: center;
-        margin-left: auto;
-        margin-right: auto;
-        display: block;
-         }
-
-        .zurueck-button:hover {
-            background-color: #222;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Danke! 👌</h1>
-        <p>Deine Anfrage vom Tisch {{ tisch_id }} wurde erfolgreich übermittelt.</p>
-        <div class="emoji">🧾 ☕ 🧁</div>
-        <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}">Zurück zur Speisekarte</a>
+{% block content %}
+<div class="container py-5 mt-4">
+    <div class="text-center">
+        <div class="d-inline-flex bg-success text-white rounded-circle align-items-center justify-content-center shadow-lg mb-4 bounce-animation" style="width: 100px; height: 100px;">
+            <i class="fa-solid fa-check fs-1"></i>
+        </div>
+        
+        <h1 class="display-5 fw-bold text-success mb-3" style="font-family: 'Poppins', sans-serif;">Danke!</h1>
+        <p class="lead text-muted mb-5">Deine Bestellung für <strong>Tisch {{ tisch_id }}</strong> ist erfolgreich bei uns eingegangen.</p>
+        
+        <div class="card shadow-sm border-0 rounded-4 mb-5">
+            <div class="card-body p-4 bg-light rounded-4">
+                <i class="fa-solid fa-bell fa-2x text-primary mb-3"></i>
+                <h5 class="fw-bold text-dark">Wir sind gleich da!</h5>
+                <p class="text-secondary mb-0">Unsere Mitarbeiter an der Theke bereiten deine Bestellung jetzt vor. Leh dich zurück und entspanne dich!</p>
+            </div>
+        </div>
+        
+        <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}" class="btn btn-outline-primary btn-lg rounded-pill px-5 py-3 fw-bold shadow-sm w-100">
+            <i class="fa-solid fa-utensils me-2"></i> Zurück zur Speisekarte
+        </a>
     </div>
-</body>
-</html>
+</div>
+
+<style>
+.bounce-animation {
+    animation: bounce 1s ease-in-out;
+}
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-20px);}
+    60% {transform: translateY(-10px);}
+}
+</style>
+{% endblock %}

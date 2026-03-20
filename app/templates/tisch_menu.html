@@ -1,10 +1,39 @@
 {% extends "base_mobile.html" %}
 {% block content %}
-  <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}">📖 Speisekarte</a>
-  <form action="{{ url_for('tisch.hilfe', tisch_id=tisch_id) }}" method="post">
-    <button type="submit">🙋 Hilfe anfordern</button>
-  </form>
-  <form action="{{ url_for('tisch.rechnung', tisch_id=tisch_id) }}" method="post">
-    <button type="submit">💶 Um Rechnung bitten</button>
-  </form>
+<div class="row g-3">
+  <!-- Option 1: Speisekarte -->
+  <div class="col-12">
+    <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}" class="text-decoration-none">
+      <div class="card shadow-sm border-0 bg-primary text-white text-center py-4 rounded-3 h-100 position-relative overflow-hidden">
+        <div class="card-body">
+            <i class="fa-solid fa-book-open display-4 mb-3"></i>
+            <h3 class="card-title fw-bold m-0" style="font-family: 'Poppins', sans-serif;">Speisekarte</h3>
+            <p class="card-text small opacity-75 mt-2">Jetzt Essen und Getränke bestellen</p>
+        </div>
+        <!-- Decorative bg icon -->
+        <i class="fa-solid fa-utensils position-absolute opacity-25" style="font-size: 8rem; right: -20px; bottom: -20px;"></i>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-6">
+    <!-- Option 2: Hilfe / Service rufen -->
+    <form action="{{ url_for('tisch.hilfe', tisch_id=tisch_id) }}" method="post" class="h-100">
+      <button type="submit" class="btn btn-warning w-100 h-100 shadow-sm border-0 d-flex flex-column align-items-center justify-content-center py-4 rounded-3 text-dark">
+        <i class="fa-solid fa-bell fs-1 mb-2"></i>
+        <span class="fw-bold" style="font-family: 'Poppins', sans-serif;">Service rufen</span>
+      </button>
+    </form>
+  </div>
+
+  <div class="col-6">
+     <!-- Option 3: Rechnung anfordern -->
+     <form action="{{ url_for('tisch.rechnung', tisch_id=tisch_id) }}" method="post" class="h-100">
+      <button type="submit" class="btn btn-success w-100 h-100 shadow-sm border-0 d-flex flex-column align-items-center justify-content-center py-4 rounded-3 text-white">
+        <i class="fa-solid fa-money-bill-wave fs-1 mb-2"></i>
+        <span class="fw-bold" style="font-family: 'Poppins', sans-serif;">Rechnung</span>
+      </button>
+    </form>
+  </div>
+</div>
 {% endblock %}

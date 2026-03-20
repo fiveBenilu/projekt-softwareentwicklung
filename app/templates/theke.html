@@ -1,266 +1,211 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Thekenübersicht</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            font-family: sans-serif;
-            display: flex;
-            height: 100vh;
-        }
+{% extends "base.html" %}
 
-        .sidebar {
-            width: 350px;
-            background: #f4f4f4;
-            border-right: 4px solid black;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 1rem;
-        }
+{% block title %}Thekenübersicht{% endblock %}
 
-        .nav, .todos {
-            margin-bottom: 2rem;
-        }
+{% block content %}
+<style>
+    .tisch-card {
+        transition: transform 0.2s;
+        position: relative;
+    }
+    .tisch-card:hover {
+        transform: translateY(-5px);
+    }
+    .tisch-img-wrapper {
+        position: relative;
+        text-align: center;
+        padding: 10px;
+    }
+    .tisch-img-wrapper img {
+        max-width: 100%;
+        height: auto;
+    }
+    .tisch-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2.5rem;
+        color: #ff9800;
+        cursor: pointer;
+        background: white;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+        transition: all 0.2s ease;
+    }
+    .tisch-icon:hover {
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+    }
+    .todo-list-container {
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+    }
+</style>
 
-        .nav h2, .todos h2 {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .nav ul, .todos ul {
-            list-style: none;
-            padding-left: 1rem;
-        }
-
-        .nav li::before {
-            content: '\2022';
-            color: black;
-            display: inline-block;
-            width: 1em;
-            margin-left: -1em;
-        }
-
-        .main {
-            flex-grow: 1;
-            padding: 2rem;
-            position: relative; }
-
-    .tisch img {
-    width: 220px;
-    display: block;
-    margin: 0 auto;
-    position: relative;
-}
-
-
-.tisch {
-    text-align: center;
-    position: absolute;
-    font-size: 1.2rem;
-    padding: 0.5rem;
-}
-
-.tisch .icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 2rem;
-    color: orange;
-    cursor: pointer;
-    background: white;
-    border-radius: 50%;
-    padding: 4px;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
-    z-index: 10;
-}
-
-.tisch .icon:hover {
-    transform: translate(-50%, -50%) scale(1.2) rotate(-10deg);
-    transition: transform 0.2s ease;
-    box-shadow: 0 0 8px rgba(255, 165, 0, 0.5);
-}
-
-        .todo-item {
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-
-        .todo-form {
-            display: inline;
-        }
-
-        .check {
-            color: green;
-            font-size: 1.2rem;
-            margin-left: 0.5rem;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-        }
-
-        .check:hover {
-            transform: scale(1.2);
-        }
-
-        .tischbild-wrapper {
-    position: relative;
-    display: inline-block;
-}
-    </style>
-</head>
-<body>
-<div class="sidebar">
-    <div class="nav">
-        <h2>Thekenübersicht</h2>
-        <ul>
-            <li><a href="{{ url_for('home.home')}}">Startseite</a></li>
-            <li><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
-        </ul>
-    </div>
-
-    <div class="todos">
-        <h2>To Dos</h2>
-        <ul id="todo-liste">
-            <!-- Wird dynamisch befüllt -->
-        </ul>
-    </div>
-</div>
-
-<div class="main">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <ul style="position:fixed; top:10px; right:10px; background:#dff0d8; padding:1rem; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.2); z-index:999;">
-    {% for category, message in messages %}
-      <li><strong>{{ message }}</strong></li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-    {% for tisch_id in range(1, 9) %}
-    <div class="tisch" data-id="{{ tisch_id }}" style="top: {{ loop.index * 80 }}px; left: {{ (loop.index % 3) * 250 + 100 }}px;">
-        <div class="tischbild-wrapper">
-            <img src="{{ url_for('static', filename='img/tisch.png') }}" alt="Tisch {{ tisch_id }}">
-            {% if bestellungen[tisch_id|string] is defined %}
-                <div class="icon" onclick="zeigeWunsch({{ tisch_id }})">❗</div>
-            {% endif %}
+<div class="row h-100">
+    <!-- Main Map Area -->
+    <div class="col-lg-8 col-md-7 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold"><i class="fa-solid fa-bell-concierge text-primary"></i> Tisch-Übersicht</h2>
+            <span class="badge bg-success p-2">Live Update <i class="fa-solid fa-circle-play fa-fade ms-1"></i></span>
         </div>
-        <div>Tisch {{ tisch_id }}</div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                        <strong>{{ message }}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row g-4" id="tischGrid">
+            {% for tisch_id in range(1, 9) %}
+            <div class="col-6 col-sm-6 col-md-4 col-xl-3 tisch" data-id="{{ tisch_id }}">
+                <div class="card tisch-card shadow-sm border-0 h-100 bg-white">
+                    <div class="tisch-img-wrapper">
+                        <img src="{{ url_for('static', filename='img/tisch.png') }}" class="img-fluid" alt="Tisch {{ tisch_id }}">
+                        {% if bestellungen[tisch_id|string] is defined %}
+                            <div class="tisch-icon" onclick="zeigeWunsch({{ tisch_id }})"><i class="fa-solid fa-exclamation"></i></div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-light border-0 text-center fw-bold text-dark rounded-bottom">
+                        Tisch {{ tisch_id }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
-    {% endfor %}
+
+    <!-- Sidebar ToDos -->
+    <div class="col-lg-4 col-md-5">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-dark text-white pt-3 pb-2 rounded-top">
+                <h5 class="fw-bold mb-0"><i class="fa-solid fa-list-check"></i> Anfragen & Aufgaben</h5>
+            </div>
+            <div class="card-body bg-light todo-list-container p-0">
+                <ul class="list-group list-group-flush" id="todo-liste">
+                    <!-- Wird dynamisch befüllt -->
+                    <li class="list-group-item text-muted text-center py-4">Lade Einträge...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
 
-<script>
-function zeigeWunsch(tischId) {
-    fetch(`/theke/api/bestellungen`)
-        .then(res => res.json())
-        .then(data => {
-            const eintraege = data[tischId];
-            if (eintraege) {
-                let info = eintraege.map(e =>
-                    `${e.zeit}: ${e.aktion === 'bestellung' ? '🧾 ' + e.artikel + ' (' + e.menge + ')' :
-                                 e.aktion === 'hilfe' ? '🙋 Hilfe' :
-                                 e.aktion === 'rechnung' ? '💶 Rechnung' : '❓'}`).join('\n');
-                alert(`Tisch ${tischId} Wunsch(e):\n\n` + info);
-            } else {
-                alert(`Keine offenen Wünsche für Tisch ${tischId}`);
-            }
-        });
-}
-</script>
-<script>
-function aktualisiereTodos() {
-    fetch("/theke/api/bestellungen")
-        .then(res => res.json())
-        .then(data => {
-            const liste = document.getElementById("todo-liste");
-            liste.innerHTML = "";  // leeren
-
-            for (const [tisch_id, eintraege] of Object.entries(data)) {
-                eintraege.forEach(eintrag => {
-                    const li = document.createElement("li");
-                    li.className = "todo-item";
-                    li.innerHTML = `
-                        Tisch ${tisch_id}: ${eintrag.aktion}<br>
-                        ${eintrag.zeit}
-                        <form method="POST" action="/theke/erledigt/${eintrag.id}">
-                            <button type="submit" class="check">✔️</button>
-                        </form>
-                    `;
-                    liste.appendChild(li);
-                });
-            }
-        });
-}
-
-// Alle 5 Sekunden aktualisieren
-setInterval(aktualisiereTodos, 5000);
-window.onload = aktualisiereTodos;
-</script>
-<audio id="benachrichtigungston" src="{{ url_for('static', filename='sounds/ping.mp3') }}"></audio>
+<audio id="benachrichtigungston" src="{{ url_for('static', filename='sounds/ping.mp3') }}" preload="auto"></audio>
 
 <script>
-    let letzteDaten = {};
-    
+    function zeigeWunsch(tischId) {
+        fetch(`/theke/api/bestellungen`)
+            .then(res => res.json())
+            .then(data => {
+                const eintraege = data[tischId];
+                if (eintraege && eintraege.length > 0) {
+                    let info = eintraege.map(e => {
+                        let iconText = '❓';
+                        if(e.aktion === 'bestellung') iconText = `🧾 ${e.artikel || 'Unbekannt'} (${e.menge || 1}x)`;
+                        else if(e.aktion === 'hilfe') iconText = '🙋 Hilfe benötigt';
+                        else if(e.aktion === 'rechnung') iconText = '💶 Rechnung verlangt';
+                        return `${e.zeit}: ${iconText}`;
+                    }).join('\n');
+                    alert(`Tisch ${tischId} Wunsch(e):\n\n` + info);
+                } else {
+                    alert(`Keine offenen Wünsche für Tisch ${tischId}`);
+                }
+            })
+            .catch(err => console.error("Fehler beim Abrufen der Details:", err));
+    }
+
+    let letzteDatenStr = "{}";
+
     function aktualisiereAnzeige() {
         fetch("/theke/api/bestellungen")
             .then(res => res.json())
             .then(daten => {
                 const datenString = JSON.stringify(daten);
-                if (datenString !== JSON.stringify(letzteDaten)) {
+                
+                // Audio bei Änderungen abspielen
+                if (datenString !== letzteDatenStr && letzteDatenStr !== "{}") {
                     const audio = document.getElementById("benachrichtigungston");
-                    if (audio) audio.play().catch(() => {});
-                    letzteDaten = daten;
+                    if (audio) {
+                        try {
+                            audio.play().catch(e => console.log("Audio-Playback blockiert", e));
+                        } catch (e) {}
+                    }
                 }
-    
-                // To-Do-Liste aktualisieren
-                const todoContainer = document.querySelector(".todos ul");
+                letzteDatenStr = datenString;
+        
+                // 1. To-Do-Liste aktualisieren
+                const todoContainer = document.getElementById("todo-liste");
                 todoContainer.innerHTML = "";
-    
+                
+                let hasItems = false;
+        
                 for (const [tisch_id, eintraege] of Object.entries(daten)) {
-                    eintraege.forEach((eintrag, index) => {
+                    eintraege.forEach((eintrag) => {
+                        hasItems = true;
+                        
+                        let badgeColor = 'bg-secondary';
+                        let aktionText = eintrag.aktion;
+                        if(eintrag.aktion === 'bestellung') { badgeColor = 'bg-primary'; aktionText = "Bestellung"; }
+                        else if(eintrag.aktion === 'hilfe') { badgeColor = 'bg-warning text-dark'; aktionText = "Hilfe gerufen"; }
+                        else if(eintrag.aktion === 'rechnung') { badgeColor = 'bg-success'; aktionText = "Rechnung"; }
+
                         const li = document.createElement("li");
-                        li.classList.add("todo-item");
+                        li.className = "list-group-item d-flex justify-content-between align-items-center p-3";
                         li.innerHTML = `
-                            Tisch ${tisch_id}: ${eintrag.aktion}<br>
-                            ${eintrag.zeit}
-                            <form action="/theke/erledigt/${eintrag.id}" method="POST">
-                                <button type="submit" class="check">✔️</button>
+                            <div>
+                                <div class="fw-bold mb-1">Tisch ${tisch_id} <span class="badge ${badgeColor} ms-2">${aktionText}</span></div>
+                                <div class="text-muted small"><i class="fa-regular fa-clock"></i> ${eintrag.zeit}</div>
+                            </div>
+                            <form action="/theke/erledigt/${eintrag.id}" method="POST" class="m-0">
+                                <button type="submit" class="btn btn-outline-success btn-sm rounded-circle" title="Erledigt" style="width: 38px; height: 38px;">
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
                             </form>
                         `;
                         todoContainer.appendChild(li);
                     });
                 }
-    
-                // ❗ Icons bei Tischen aktualisieren
+                
+                if (!hasItems) {
+                    todoContainer.innerHTML = '<li class="list-group-item text-muted text-center py-4 bg-light"><i class="fa-solid fa-mug-hot fa-2x mb-3 text-black-50"></i><br>Keine offenen Aufgaben</li>';
+                }
+        
+                // 2. Icons bei Tischen aktualisieren
                 for (let i = 1; i <= 8; i++) {
                     const tischDiv = document.querySelector(`.tisch[data-id="${i}"]`);
                     if (!tischDiv) continue;
-    
-                    const vorhandenesIcon = tischDiv.querySelector(".icon");
+        
+                    const imgWrapper = tischDiv.querySelector(".tisch-img-wrapper");
+                    const vorhandenesIcon = tischDiv.querySelector(".tisch-icon");
                     if (vorhandenesIcon) vorhandenesIcon.remove();
-    
-                    if (daten[i]) {
+        
+                    if (daten[i] && daten[i].length > 0) {
                         const icon = document.createElement("div");
-                        icon.className = "icon";
-                        icon.textContent = "❗";
+                        icon.className = "tisch-icon";
+                        icon.innerHTML = '<i class="fa-solid fa-exclamation"></i>';
                         icon.onclick = () => zeigeWunsch(i);
-                        tischDiv.appendChild(icon);
+                        imgWrapper.appendChild(icon);
                     }
                 }
             })
             .catch(err => console.error("Fehler beim Aktualisieren:", err));
     }
-    
-    setInterval(aktualisiereAnzeige, 5000);
+
+    // Interval für Live-Updates
+    setInterval(aktualisiereAnzeige, 3000);
     window.onload = aktualisiereAnzeige;
-    </script>
-</body>
-</html>
+</script>
+{% endblock %}

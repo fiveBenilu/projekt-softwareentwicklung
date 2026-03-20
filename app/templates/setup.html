@@ -1,43 +1,67 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <title>Café Setup</title>
-</head>
-<body>
-  <h1>Café Setup</h1>
+{% extends "base.html" %}
 
-  {% with messages = get_flashed_messages() %}
+{% block title %}Café Setup{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold"><i class="fa-solid fa-cogs text-primary"></i> Café Setup</h2>
+        <p class="text-muted">Richten Sie die Stammdaten für Ihr Café ein.</p>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages() %}
     {% if messages %}
-      <ul>
-        {% for message in messages %}
-          <li style="color:green;">{{ message }}</li>
-        {% endfor %}
-      </ul>
+        <div class="alert alert-success mb-4 shadow-sm">
+            <ul class="mb-0 px-3">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
     {% endif %}
-  {% endwith %}
+{% endwith %}
 
-  <form method="POST">
-    <label>Name:</label><br>
-    <input type="text" name="name" required><br><br>
+<div class="card shadow-sm border-0" style="max-width: 600px;">
+    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+        <h5 class="card-title fw-bold"><i class="fa-solid fa-store text-info"></i> Grunddaten konfigurieren</h5>
+    </div>
+    <div class="card-body p-4">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Name des Cafés</label>
+                <input type="text" class="form-control" name="name" placeholder="z.B. Cafe Antares" required>
+            </div>
 
-    <label>Adresse:</label><br>
-    <textarea name="address" required></textarea><br><br>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Adresse</label>
+                <textarea class="form-control" name="address" rows="2" placeholder="Straße, Hausnummer, PLZ Ort" required></textarea>
+            </div>
 
-    <label>Telefon:</label><br>
-    <input type="text" name="phone" required><br><br>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Telefonnummer</label>
+                <input type="text" class="form-control" name="phone" placeholder="+49 ..." required>
+            </div>
 
-    <label>Sprache:</label><br>
-    <select name="language" required>
-      <option value="de">Deutsch</option>
-      <option value="en">Englisch</option>
-      <option value="tr">Türkisch</option>
-    </select><br><br>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold">Sprache</label>
+                    <select class="form-select" name="language" required>
+                        <option value="de">Deutsch</option>
+                        <option value="en">Englisch</option>
+                        <option value="tr">Türkisch</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="tables" class="form-label fw-semibold">Anzahl Tische</label>
+                    <input type="number" class="form-control" id="tables" name="tables" min="1" placeholder="z.B. 10" required>
+                </div>
+            </div>
 
-    <label for="tables">Anzahl Tische:</label>
-    <input type="number" id="tables" name="tables" min="1" required>    
-
-    <button type="submit">Speichern</button>
-  </form>
-</body>
-</html>
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-primary btn-lg"><i class="fa-solid fa-save"></i> Einstellungen speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

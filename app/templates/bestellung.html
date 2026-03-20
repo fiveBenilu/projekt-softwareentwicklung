@@ -1,19 +1,50 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Bestellung starten – Café Digital</title>
-</head>
-<body>
-    <h1>📋 Bestellung starten</h1>
+{% extends "base.html" %}
 
-    <p><a href="{{ url_for('home.home') }}">🔙 Zurück zur Startseite</a></p>
+{% block title %}Bestellung starten – Café Digital{% endblock %}
 
-    <h2>Wähle einen Tisch:</h2>
-    <ul>
-        {% for tisch in range(1, tisch_anzahl + 1) %}
-            <li><a href="{{ url_for('tisch.tisch', tisch_id=tisch) }}">🪑 Tisch {{ tisch }}</a></li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-9">
+        <h2 class="fw-bold"><i class="fa-solid fa-clipboard-list text-primary"></i> Bestellung starten</h2>
+        <p class="text-muted">Wählen Sie einen Tisch aus, um eine Bestellung entgegenzunehmen.</p>
+    </div>
+    <div class="col-md-3 text-md-end">
+        <a href="{{ url_for('home.home') }}" class="btn btn-secondary mt-3"><i class="fa-solid fa-arrow-left"></i> Zurück</a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 bg-light p-4">
+    <div class="row g-3">
+        {% if tische > 0 %}
+            {% for tisch in range(1, tische + 1) %}
+                <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                    <a href="{{ url_for('tisch.tisch', tisch_id=tisch) }}" class="text-decoration-none">
+                        <div class="card h-100 text-center border-0 shadow-sm table-card" style="transition: transform 0.2s;">
+                            <div class="card-body py-4">
+                                <i class="fa-solid fa-chair display-4 text-secondary mb-3"></i>
+                                <h5 class="card-title text-dark mb-0 fw-bold">Tisch {{ tisch }}</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Es sind noch keine Tische im Setup konfiguriert. Bitte richten Sie zuerst das Café im <a href="{{ url_for('main.setup') }}">Setup</a> ein.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .table-card:hover {
+        transform: translateY(-5px);
+        background-color: #e9ecef;
+    }
+    .table-card:hover .fa-chair {
+        color: #0d6efd !important;
+    }
+</style>
+{% endblock %}
