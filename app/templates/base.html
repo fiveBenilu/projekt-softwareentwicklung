@@ -4,69 +4,149 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Cafe Admin{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --admin-bg: #f4f6fb;
+            --admin-surface: #ffffff;
+            --admin-text: #0f172a;
+            --admin-muted: #64748b;
+            --admin-border: #e2e8f0;
+            --admin-primary: #0f766e;
+            --admin-primary-soft: #ccfbf1;
+            --admin-sidebar: #0f172a;
+            --admin-sidebar-soft: #1e293b;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Manrope', sans-serif;
+            background: radial-gradient(circle at 0% 0%, #eef2ff 0, transparent 32%), var(--admin-bg);
+            color: var(--admin-text);
         }
         #sidebar {
             min-height: 100vh;
-            background: #212529;
+            background: linear-gradient(175deg, var(--admin-sidebar) 0%, var(--admin-sidebar-soft) 100%);
             color: #fff;
             transition: all 0.3s;
             position: fixed;
-            width: 250px;
+            width: 270px;
             z-index: 1000;
+            border-right: 1px solid rgba(148, 163, 184, 0.16);
+            box-shadow: 8px 0 30px rgba(2, 6, 23, 0.2);
         }
         #sidebar .sidebar-header {
-            padding: 20px;
-            background: #1a1e21;
-            text-align: center;
+            padding: 28px 24px 20px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
         }
+
+        .brand-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            margin-bottom: 4px;
+        }
+
+        .brand-subtitle {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
         #sidebar ul.components {
-            padding: 20px 0;
+            padding: 14px;
+            margin: 0;
         }
+
         #sidebar ul li a {
-            padding: 10px 20px;
-            font-size: 1.1em;
-            display: block;
-            color: #fff;
+            padding: 11px 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #e2e8f0;
             text-decoration: none;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            margin-bottom: 6px;
         }
-        #sidebar ul li a:hover, #sidebar ul li.active > a {
-            background: #0d6efd;
+
+        #sidebar ul li a:hover {
+            background: rgba(148, 163, 184, 0.16);
+            color: #fff;
         }
+
+        #sidebar ul li.active > a {
+            background: var(--admin-primary-soft);
+            color: #134e4a;
+            box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.22);
+        }
+
         #sidebar ul li a i {
-            margin-right: 10px;
             width: 20px;
             text-align: center;
+            font-size: 0.95rem;
         }
+
         #content {
-            margin-left: 250px;
-            padding: 30px;
-            width: calc(100% - 250px);
+            margin-left: 270px;
+            padding: 24px;
+            width: calc(100% - 270px);
             transition: all 0.3s;
         }
+
+        .topbar {
+            border: 1px solid var(--admin-border);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(6px);
+        }
+
         .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--admin-border);
+            border-radius: 16px;
+            background: var(--admin-surface);
+            box-shadow: 0 8px 26px rgba(15, 23, 42, 0.05);
             margin-bottom: 20px;
         }
+
+        .avatar-pill {
+            border: 1px solid var(--admin-border);
+            border-radius: 999px;
+            padding: 6px 12px;
+            color: var(--admin-muted);
+            font-weight: 600;
+            font-size: 0.86rem;
+            background: #fff;
+        }
+
+        .content-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .global-flashes .alert {
+            border-radius: 12px;
+            border: 1px solid var(--admin-border);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        }
+
         .qrcode {
             display: flex;
             align-items: center;
             gap: 20px;
             margin-bottom: 20px;
         }
+
         @media (max-width: 768px) {
             #sidebar {
-                margin-left: -250px;
+                margin-left: -270px;
             }
             #sidebar.active {
                 margin-left: 0;
@@ -74,10 +154,11 @@
             #content {
                 margin-left: 0;
                 width: 100%;
+                padding: 16px;
             }
             #content.active {
-                margin-left: 250px;
-                width: calc(100% - 250px);
+                margin-left: 270px;
+                width: calc(100% - 270px);
             }
         }
     </style>
@@ -86,8 +167,9 @@
     <div class="d-flex">
         <!-- Sidebar -->
         <nav id="sidebar">
-            <div class="sidebar-header border-bottom border-secondary">
-                <h4 class="mb-0"><i class="fa-solid fa-mug-hot"></i> Cafe Admin</h4>
+            <div class="sidebar-header">
+                <div class="brand-title"><i class="fa-solid fa-store"></i> Cafe Admin</div>
+                <p class="brand-subtitle">Management Console</p>
             </div>
             <ul class="list-unstyled components">
                 <li>
@@ -100,7 +182,7 @@
                     <a href="{{ url_for('main.setup') }}"><i class="fa-solid fa-cogs"></i> Setup</a>
                 </li>
                 <li>
-                    <a href="#"><i class="fa-solid fa-chart-line"></i> Statistik</a>
+                    <a href="{{ url_for('admin.dashboard') }}"><i class="fa-solid fa-chart-line"></i> Statistik</a>
                 </li>
                 <li>
                     <a href="{{ url_for('admin.menu') }}"><i class="fa-solid fa-utensils"></i> Speisekarte</a>
@@ -113,18 +195,32 @@
 
         <!-- Page Content -->
         <div id="content">
-            <nav class="navbar navbar-expand-lg navbar-light bg-white rounded mb-4 shadow-sm">
+            <nav class="navbar navbar-expand-lg topbar mb-4 px-2 py-2">
                 <div class="container-fluid">
                     <button type="button" id="sidebarCollapse" class="btn btn-primary d-md-none">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="ms-auto">
-                        <span class="text-muted"><i class="fa-solid fa-user-circle"></i> Administrator</span>
+                        <span class="avatar-pill"><i class="fa-solid fa-user-shield"></i> Administrator</span>
                     </div>
                 </div>
             </nav>
 
-            <div class="container-fluid">
+            <div class="container-fluid content-wrapper">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="global-flashes mb-3">
+                            {% for message in messages %}
+                                <div class="alert alert-light alert-dismissible fade show d-flex align-items-center gap-2 mb-2" role="alert" data-auto-dismiss="5000">
+                                    <i class="fa-solid fa-circle-info text-primary"></i>
+                                    <span class="flex-grow-1">{{ message }}</span>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schliessen"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
                 {% block content %}{% endblock %}
             </div>
         </div>
@@ -137,6 +233,16 @@
             const sidebar = document.getElementById('sidebar');
             const content = document.getElementById('content');
             const sidebarBtn = document.getElementById('sidebarCollapse');
+            const currentPath = window.location.pathname;
+
+            document.querySelectorAll('#sidebar ul li').forEach((item) => {
+                const link = item.querySelector('a');
+                if (!link) return;
+                const href = new URL(link.href, window.location.origin).pathname;
+                if (href === currentPath || (href !== '/home/' && currentPath.startsWith(href))) {
+                    item.classList.add('active');
+                }
+            });
             
             if (sidebarBtn) {
                 sidebarBtn.addEventListener('click', () => {
@@ -144,6 +250,14 @@
                     content.classList.toggle('active');
                 });
             }
+
+            document.querySelectorAll('.global-flashes .alert[data-auto-dismiss]').forEach((alertEl) => {
+                const timeout = Number(alertEl.getAttribute('data-auto-dismiss')) || 5000;
+                setTimeout(() => {
+                    const alert = bootstrap.Alert.getOrCreateInstance(alertEl);
+                    alert.close();
+                }, timeout);
+            });
         });
     </script>
 </body>

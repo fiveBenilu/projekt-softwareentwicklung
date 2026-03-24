@@ -1,13 +1,191 @@
 {% extends "base_mobile.html" %}
 
 {% block content %}
-<div class="mb-4 text-center mt-3">
-    <h2 class="fw-bold" style="font-family: 'Poppins', sans-serif;"><i class="fa-solid fa-book-open text-primary"></i> Speisekarte</h2>
-</div>
+<style>
+    .menu-page {
+        --bg: #f3f4f6;
+        --surface: #ffffff;
+        --text: #111827;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --accent: #0f766e;
+        --accent-soft: #ccfbf1;
+    }
+
+    .menu-page {
+        color: var(--text);
+    }
+
+    .menu-title {
+        font-family: 'Poppins', sans-serif;
+        letter-spacing: -0.02em;
+        font-size: 2rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .menu-subtitle {
+        color: var(--muted);
+        font-size: 0.95rem;
+    }
+
+    .category-block {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
+    }
+
+    .category-header {
+        padding: 0.9rem 1rem;
+        background: linear-gradient(100deg, #111827 0%, #1f2937 100%);
+        color: #fff;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 0.85rem;
+    }
+
+    .menu-item {
+        padding: 0.95rem 1rem;
+        border-top: 1px solid var(--line);
+        display: flex;
+        gap: 0.9rem;
+        justify-content: space-between;
+        align-items: center;
+        background: #fff;
+    }
+
+    .menu-item:first-child {
+        border-top: none;
+    }
+
+    .menu-item-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+        line-height: 1.25;
+    }
+
+    .menu-item-desc {
+        color: var(--muted);
+        font-size: 0.84rem;
+        line-height: 1.35;
+        margin-bottom: 0.25rem;
+    }
+
+    .menu-item-price {
+        color: var(--accent);
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .order-controls {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 0.3rem;
+        background: #fff;
+    }
+
+    .qty-btn {
+        border: none;
+        width: 30px;
+        height: 30px;
+        border-radius: 999px;
+        background: #f3f4f6;
+        color: #111827;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .qty-btn:active {
+        transform: scale(0.96);
+    }
+
+    .qty-input {
+        width: 40px;
+        border: none;
+        text-align: center;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        color: #111827;
+        background: transparent;
+        padding: 0;
+    }
+
+    .qty-input:focus {
+        outline: none;
+    }
+
+    .add-btn {
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        background: var(--accent);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .badge-unavailable {
+        color: #991b1b;
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        border-radius: 999px;
+        padding: 0.4rem 0.7rem;
+        font-size: 0.75rem;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .menu-item.is-unavailable {
+        background: #fafafa;
+    }
+
+    .menu-item.is-unavailable .menu-item-title,
+    .menu-item.is-unavailable .menu-item-price {
+        color: #9ca3af;
+    }
+
+    .back-btn {
+        margin-top: 1.2rem;
+        width: 100%;
+        border-radius: 14px;
+        padding: 0.9rem;
+        border: 1px solid var(--line);
+        color: #111827;
+        background: #fff;
+        text-decoration: none;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+    }
+</style>
+
+<div class="menu-page">
+    <div class="mb-4 mt-2 text-center">
+        <h2 class="menu-title"><i class="fa-solid fa-book-open text-primary"></i> Speisekarte</h2>
+        <p class="menu-subtitle mb-0">Minimal, schnell und direkt bestellbar.</p>
+    </div>
 
 {% with messages = get_flashed_messages() %}
     {% if messages %}
-        <div class="alert alert-success shadow-sm rounded-3 mb-4 text-center">
+        <div class="alert alert-success shadow-sm rounded-4 mb-4 text-center border-0">
             <ul class="mb-0 px-0" style="list-style: none;">
                 {% for message in messages %}
                     <li>{{ message }}</li>
@@ -18,45 +196,86 @@
 {% endwith %}
 
 {% for kategorie, produkte in artikel_gruppen.items() %}
-<div class="card shadow-sm border-0 mb-4 rounded-4 overflow-hidden">
-    <div class="card-header bg-dark text-white py-3">
-        <h4 class="mb-0 fw-bold" style="font-family: 'Poppins', sans-serif;">{{ kategorie }}</h4>
-    </div>
-    <ul class="list-group list-group-flush">
+<section class="category-block">
+    <div class="category-header">{{ kategorie }}</div>
+    <div>
         {% for produkt in produkte %}
-        <li class="list-group-item p-3 {{ 'bg-light text-muted' if not produkt.verfuegbar else '' }}">
-            <div class="d-flex justify-content-between align-items-start">
-                <div class="pe-2">
-                    <h5 class="fw-bold mb-1" style="font-family: 'Poppins', sans-serif;">{{ produkt.name }}</h5>
+        <article class="menu-item {{ 'is-unavailable' if not produkt.verfuegbar else '' }}">
+            <div class="pe-2 flex-grow-1">
+                    <h3 class="menu-item-title">{{ produkt.name }}</h3>
                     {% if produkt.beschreibung %}
-                        <p class="small text-muted mb-1">{{ produkt.beschreibung }}</p>
+                        <p class="menu-item-desc">{{ produkt.beschreibung }}</p>
                     {% endif %}
-                    <div class="fw-bold text-primary mt-2">{{ "%.2f"|format(produkt.preis) }} €</div>
-                </div>
-                
-                <div class="ms-auto pt-1" style="min-width: 100px;">
+                    <div class="menu-item-price">{{ "%.2f"|format(produkt.preis) }} €</div>
+            </div>
+
+                <div class="ms-auto">
                     {% if produkt.verfuegbar %}
-                        <form method="POST" action="{{ url_for('tisch.in_warenkorb', tisch_id=tisch_id) }}" class="d-flex align-items-center bg-white border rounded-pill shadow-sm overflow-hidden p-1">
+                        <form method="POST" action="{{ url_for('tisch.in_warenkorb', tisch_id=tisch_id) }}" class="order-controls js-qty-form">
                             <input type="hidden" name="artikel" value="{{ produkt.name }}">
-                            <input type="number" name="menge" value="1" min="1" class="form-control border-0 text-center p-0 fw-bold bg-white" style="width: 35px; box-shadow: none;">
-                            <button type="submit" class="btn btn-primary rounded-circle btn-sm d-flex align-items-center justify-content-center m-0" style="width: 32px; height: 32px;">
-                                <i class="fa-solid fa-plus pt-1"></i>
+                            <button type="button" class="qty-btn js-minus" aria-label="Menge reduzieren">-</button>
+                            <input type="number" name="menge" value="1" min="1" max="99" step="1" class="qty-input js-qty" inputmode="numeric" aria-label="Menge">
+                            <button type="button" class="qty-btn js-plus" aria-label="Menge erhoehen">+</button>
+                            <button type="submit" class="add-btn" aria-label="Zum Warenkorb">
+                                <i class="fa-solid fa-plus"></i>
                             </button>
                         </form>
                     {% else %}
-                        <span class="badge bg-danger mt-1 py-2 px-2 rounded-pill"><i class="fa-solid fa-ban"></i> Leider Leer</span>
+                        <span class="badge-unavailable"><i class="fa-solid fa-ban"></i> Ausverkauft</span>
                     {% endif %}
                 </div>
-            </div>
-        </li>
+        </article>
         {% endfor %}
-    </ul>
-</div>
+    </div>
+</section>
 {% endfor %}
 
-<div class="d-grid gap-3 mt-4 mb-4">
-    <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}" class="btn btn-outline-secondary py-3 rounded-pill fw-bold shadow-sm">
+<div class="mb-4">
+    <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}" class="back-btn">
         <i class="fa-solid fa-arrow-left"></i> Zurück zum Tischmenü
     </a>
+</div>
+
+<script>
+    document.querySelectorAll('.js-qty-form').forEach((form) => {
+        const input = form.querySelector('.js-qty');
+        const minus = form.querySelector('.js-minus');
+        const plus = form.querySelector('.js-plus');
+        const min = parseInt(input.getAttribute('min') || '1', 10);
+        const max = parseInt(input.getAttribute('max') || '99', 10);
+
+        function toValidQty(rawValue) {
+            const parsed = parseInt(rawValue, 10);
+            if (Number.isNaN(parsed)) {
+                return min;
+            }
+            return Math.min(Math.max(parsed, min), max);
+        }
+
+        minus.addEventListener('click', (e) => {
+            e.preventDefault();
+            const current = toValidQty(input.value);
+            input.value = Math.max(min, current - 1);
+        });
+
+        plus.addEventListener('click', (e) => {
+            e.preventDefault();
+            const current = toValidQty(input.value);
+            input.value = Math.min(max, current + 1);
+        });
+
+        input.addEventListener('blur', () => {
+            input.value = toValidQty(input.value);
+        });
+
+        input.addEventListener('change', () => {
+            input.value = toValidQty(input.value);
+        });
+
+        form.addEventListener('submit', () => {
+            input.value = toValidQty(input.value);
+        });
+    });
+</script>
 </div>
 {% endblock %}

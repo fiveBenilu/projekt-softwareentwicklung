@@ -14,8 +14,13 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 BESTELLUNGEN_FILE = os.path.join(DATA_DIR, 'orders.json')
 
 
-@tisch_bp.route('/<int:tisch_id>', methods=['GET', 'POST'])
+@tisch_bp.route('/<int:tisch_id>', methods=['GET'])
 def tisch(tisch_id):
+    return render_template('tisch_menu.html', tisch_id=tisch_id)
+
+
+@tisch_bp.route('/<int:tisch_id>/speisekarte', methods=['GET'])
+def speisekarte(tisch_id):
     # Menü direkt aus der DB laden
 
     # Artikel nach Kategorie gruppieren
@@ -38,7 +43,7 @@ def tisch(tisch_id):
                 del cart[remove_index]
                 session[cart_key] = cart
                 flash("🗑️ Artikel entfernt!")
-                return redirect(url_for('tisch.tisch', tisch_id=tisch_id))
+                return redirect(url_for('tisch.speisekarte', tisch_id=tisch_id))
         except ValueError:
             pass
 
@@ -52,12 +57,12 @@ def in_warenkorb(tisch_id):
 
     if not artikel_name or not menge:
         flash("❌ Bitte Artikel und Menge angeben!")
-        return redirect(url_for('tisch.tisch', tisch_id=tisch_id))
+        return redirect(url_for('tisch.speisekarte', tisch_id=tisch_id))
 
     artikel_obj = Artikel.query.filter_by(name=artikel_name).first()
     if not artikel_obj:
         flash("❌ Artikel nicht gefunden!")
-        return redirect(url_for('tisch.tisch', tisch_id=tisch_id))
+        return redirect(url_for('tisch.speisekarte', tisch_id=tisch_id))
 
     eintrag = {
         "artikel": artikel_obj.name,
@@ -71,7 +76,7 @@ def in_warenkorb(tisch_id):
     session[cart_key] = warenkorb
 
     flash("✅ Zum Warenkorb hinzugefügt!")
-    return redirect(url_for('tisch.tisch', tisch_id=tisch_id))
+    return redirect(url_for('tisch.speisekarte', tisch_id=tisch_id))
 
 
 @tisch_bp.route('/<int:tisch_id>/warenkorb/remove')
@@ -99,29 +104,30 @@ def bestellen(tisch_id):
 
     if not warenkorb:
         flash("🛒 Der Warenkorb ist leer.")
-        return redirect(url_for('tisch.tisch', tisch_id=tisch_id))
+        return redirect(url_for('tisch.speisekarte', tisch_id=tisch_id))
 
     for eintrag in warenkorb:
         speichere_bestellung(tisch_id, "bestellung", artikel=eintrag["artikel"], menge=eintrag["menge"])
 
     session.pop(f'warenkorb_{tisch_id}', None)
     flash("✅ Bestellung wurde gesendet!")
-    return redirect(url_for('tisch.danke', tisch_id=tisch_id))
+    return redirect(url_for('tisch.danke', tisch_id=tisch_id, typ='bestellung'))
 
 @tisch_bp.route('/<int:tisch_id>/danke')
 def danke(tisch_id):
-    return render_template("danke.html", tisch_id=tisch_id)
+    typ = request.args.get('typ', 'bestellung')
+    return render_template("danke.html", tisch_id=tisch_id, typ=typ)
 
 @tisch_bp.route('/<int:tisch_id>/hilfe', methods=['POST'])
 def hilfe(tisch_id):
     speichere_bestellung(tisch_id, "hilfe")
-    return redirect(url_for('tisch.danke', tisch_id=tisch_id))
+    return redirect(url_for('tisch.danke', tisch_id=tisch_id, typ='hilfe'))
 
 
 @tisch_bp.route('/<int:tisch_id>/rechnung', methods=['POST'])
 def rechnung(tisch_id):
     speichere_bestellung(tisch_id, "rechnung")
-    return redirect(url_for('tisch.danke', tisch_id=tisch_id))
+    return redirect(url_for('tisch.danke', tisch_id=tisch_id, typ='rechnung'))
 
 
 

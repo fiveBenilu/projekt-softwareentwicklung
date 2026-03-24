@@ -41,7 +41,7 @@
             <i class="fa-solid fa-check-double me-2"></i> Jetzt Bestellen
         </button>
     </form>
-    <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}" class="btn btn-outline-secondary py-3 rounded-pill fw-bold bg-white">
+    <a href="{{ url_for('tisch.speisekarte', tisch_id=tisch_id) }}" class="btn btn-outline-secondary py-3 rounded-pill fw-bold bg-white">
         <i class="fa-solid fa-plus me-1"></i> Mehr hinzufügen
     </a>
 </div>
@@ -51,7 +51,7 @@
     <div class="alert alert-light border shadow-sm rounded-4 mb-4 py-4">
         <p class="mb-0 fs-5 text-muted"><i class="fa-solid fa-basket-shopping fa-2x mb-3 d-block text-secondary"></i>🛒 Dein Warenkorb ist leider leer.</p>
     </div>
-    <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm fw-bold">
+    <a href="{{ url_for('tisch.speisekarte', tisch_id=tisch_id) }}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm fw-bold">
         <i class="fa-solid fa-utensils me-2"></i> Zurück zur Speisekarte
     </a>
 </div>

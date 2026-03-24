@@ -13,10 +13,10 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style_mobile.css') }}">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Patrick+Hand&display=swap">
 </head>
-<body class="bg-light">
+<body class="bg-light mobile-layout">
   
   <!-- Modern Navigation Bar -->
-  <nav class="navbar navbar-expand bg-white fixed-top shadow-sm py-2 px-3">
+  <nav class="navbar navbar-expand bg-white shadow-sm py-2 px-3 mobile-topbar">
     <div class="d-flex w-100 justify-content-between align-items-center">
       <a class="nav-link fs-4 text-dark" href="{% if tisch_id %}{{ url_for('tisch.tisch', tisch_id=tisch_id) }}{% else %}#{% endif %}"><i class="fa-solid fa-home"></i></a>
       
@@ -37,8 +37,8 @@
     </div>
   </nav>
 
-  <!-- Main Content Area (Spaced for fixed topnav) -->
-  <main class="container-fluid pt-5 mt-4 pb-5" style="max-width: 600px;">
+  <!-- Main Content Area -->
+  <main class="container-fluid mobile-main pb-5" style="max-width: 600px;">
     {% block content %}{% endblock %}
   </main>
 

@@ -20,14 +20,13 @@
         max-width: 100%;
         height: auto;
     }
-    .tisch-icon {
+    .tisch-status-icon {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         font-size: 2.5rem;
-        color: #ff9800;
-        cursor: pointer;
+        color: #ffffff;
         background: white;
         border-radius: 50%;
         width: 60px;
@@ -39,9 +38,40 @@
         z-index: 10;
         transition: all 0.2s ease;
     }
-    .tisch-icon:hover {
+    .tisch-status-icon:hover {
         transform: translate(-50%, -50%) scale(1.1);
-        box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+    }
+    .status-offen {
+        background: #f59e0b;
+    }
+    .status-frei {
+        background: #22c55e;
+    }
+    .tisch-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        height: 100%;
+    }
+    .tisch-alert-dot {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #ef4444;
+        color: #fff;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+        box-shadow: 0 4px 10px rgba(239, 68, 68, 0.45);
+        z-index: 12;
+    }
+    .tisch-alert-dot.active {
+        display: flex;
     }
     .todo-list-container {
         max-height: calc(100vh - 120px);
@@ -57,30 +87,21 @@
             <span class="badge bg-success p-2">Live Update <i class="fa-solid fa-circle-play fa-fade ms-1"></i></span>
         </div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-                        <strong>{{ message }}</strong>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
         <div class="row g-4" id="tischGrid">
-            {% for tisch_id in range(1, 9) %}
+            {% for tisch_id in range(1, anzahl_tische + 1) %}
             <div class="col-6 col-sm-6 col-md-4 col-xl-3 tisch" data-id="{{ tisch_id }}">
                 <div class="card tisch-card shadow-sm border-0 h-100 bg-white">
-                    <div class="tisch-img-wrapper">
-                        <img src="{{ url_for('static', filename='img/tisch.png') }}" class="img-fluid" alt="Tisch {{ tisch_id }}">
-                        {% if bestellungen[tisch_id|string] is defined %}
-                            <div class="tisch-icon" onclick="zeigeWunsch({{ tisch_id }})"><i class="fa-solid fa-exclamation"></i></div>
-                        {% endif %}
-                    </div>
-                    <div class="card-footer bg-light border-0 text-center fw-bold text-dark rounded-bottom">
-                        Tisch {{ tisch_id }}
-                    </div>
+                    <a href="{{ url_for('theke.rechnung_ansehen', tisch_id=tisch_id) }}" class="tisch-link" title="Rechnung fuer Tisch {{ tisch_id }}">
+                        <div class="tisch-img-wrapper">
+                            <img src="{{ url_for('static', filename='img/tisch.png') }}" class="img-fluid" alt="Tisch {{ tisch_id }}">
+                            <div class="tisch-status-icon status-frei"><i class="fa-solid fa-circle-check"></i></div>
+                            <div class="tisch-alert-dot" title="Offene Anforderung"><i class="fa-solid fa-exclamation"></i></div>
+                        </div>
+                        <div class="card-footer bg-light border-0 text-center fw-bold text-dark rounded-bottom d-flex justify-content-center align-items-center gap-2">
+                            <span>Tisch {{ tisch_id }}</span>
+                            <i class="fa-solid fa-file-invoice-dollar text-success"></i>
+                        </div>
+                    </a>
                 </div>
             </div>
             {% endfor %}
@@ -106,27 +127,6 @@
 <audio id="benachrichtigungston" src="{{ url_for('static', filename='sounds/ping.mp3') }}" preload="auto"></audio>
 
 <script>
-    function zeigeWunsch(tischId) {
-        fetch(`/theke/api/bestellungen`)
-            .then(res => res.json())
-            .then(data => {
-                const eintraege = data[tischId];
-                if (eintraege && eintraege.length > 0) {
-                    let info = eintraege.map(e => {
-                        let iconText = '❓';
-                        if(e.aktion === 'bestellung') iconText = `🧾 ${e.artikel || 'Unbekannt'} (${e.menge || 1}x)`;
-                        else if(e.aktion === 'hilfe') iconText = '🙋 Hilfe benötigt';
-                        else if(e.aktion === 'rechnung') iconText = '💶 Rechnung verlangt';
-                        return `${e.zeit}: ${iconText}`;
-                    }).join('\n');
-                    alert(`Tisch ${tischId} Wunsch(e):\n\n` + info);
-                } else {
-                    alert(`Keine offenen Wünsche für Tisch ${tischId}`);
-                }
-            })
-            .catch(err => console.error("Fehler beim Abrufen der Details:", err));
-    }
-
     let letzteDatenStr = "{}";
 
     function aktualisiereAnzeige() {
@@ -153,7 +153,28 @@
                 let hasItems = false;
         
                 for (const [tisch_id, eintraege] of Object.entries(daten)) {
+                    const hatBestellungen = eintraege.some((e) => e.aktion === 'bestellung');
+
+                    if (hatBestellungen) {
+                        const liRechnung = document.createElement("li");
+                        liRechnung.className = "list-group-item d-flex justify-content-between align-items-center p-3 bg-white";
+                        liRechnung.innerHTML = `
+                            <div>
+                                <div class="fw-bold mb-1">Tisch ${tisch_id} <span class="badge bg-success ms-2">Rechnung moeglich</span></div>
+                                <div class="text-muted small">Bestellungen erfasst - Rechnung kann erstellt werden.</div>
+                            </div>
+                            <a href="/theke/rechnung/${tisch_id}" class="btn btn-success btn-sm">
+                                <i class="fa-solid fa-file-invoice-dollar"></i> Rechnung
+                            </a>
+                        `;
+                        todoContainer.appendChild(liRechnung);
+                    }
+
                     eintraege.forEach((eintrag) => {
+                        if (eintrag.aktion === 'bestellung_erfasst') {
+                            return;
+                        }
+
                         hasItems = true;
                         
                         let badgeColor = 'bg-secondary';
@@ -164,16 +185,18 @@
 
                         const li = document.createElement("li");
                         li.className = "list-group-item d-flex justify-content-between align-items-center p-3";
+                        const erledigtButton = `<form action="/theke/erledigt/${eintrag.id}" method="POST" class="m-0">
+                                <button type="submit" class="btn btn-outline-success btn-sm rounded-circle" title="Erledigt" style="width: 38px; height: 38px;">
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+                           </form>`;
+
                         li.innerHTML = `
                             <div>
                                 <div class="fw-bold mb-1">Tisch ${tisch_id} <span class="badge ${badgeColor} ms-2">${aktionText}</span></div>
                                 <div class="text-muted small"><i class="fa-regular fa-clock"></i> ${eintrag.zeit}</div>
                             </div>
-                            <form action="/theke/erledigt/${eintrag.id}" method="POST" class="m-0">
-                                <button type="submit" class="btn btn-outline-success btn-sm rounded-circle" title="Erledigt" style="width: 38px; height: 38px;">
-                                    <i class="fa-solid fa-check"></i>
-                                </button>
-                            </form>
+                            ${erledigtButton}
                         `;
                         todoContainer.appendChild(li);
                     });
@@ -184,20 +207,33 @@
                 }
         
                 // 2. Icons bei Tischen aktualisieren
-                for (let i = 1; i <= 8; i++) {
+                const tischAnzahl = {{ anzahl_tische | int }};
+                for (let i = 1; i <= tischAnzahl; i++) {
                     const tischDiv = document.querySelector(`.tisch[data-id="${i}"]`);
                     if (!tischDiv) continue;
         
-                    const imgWrapper = tischDiv.querySelector(".tisch-img-wrapper");
-                    const vorhandenesIcon = tischDiv.querySelector(".tisch-icon");
-                    if (vorhandenesIcon) vorhandenesIcon.remove();
-        
-                    if (daten[i] && daten[i].length > 0) {
-                        const icon = document.createElement("div");
-                        icon.className = "tisch-icon";
-                        icon.innerHTML = '<i class="fa-solid fa-exclamation"></i>';
-                        icon.onclick = () => zeigeWunsch(i);
-                        imgWrapper.appendChild(icon);
+                    const statusIcon = tischDiv.querySelector(".tisch-status-icon");
+                    const alertDot = tischDiv.querySelector(".tisch-alert-dot");
+                    if (!statusIcon) continue;
+
+                    const eintraege = daten[i] || [];
+                    const hatOffenePosten = eintraege.some((e) => e.aktion === 'bestellung' || e.aktion === 'bestellung_erfasst');
+                    const hatOffeneAnforderung = eintraege.some((e) => e.aktion === 'bestellung' || e.aktion === 'hilfe' || e.aktion === 'rechnung');
+
+                    if (alertDot) {
+                        alertDot.classList.toggle('active', hatOffeneAnforderung);
+                    }
+
+                    if (hatOffenePosten) {
+                        statusIcon.classList.remove("status-frei");
+                        statusIcon.classList.add("status-offen");
+                        statusIcon.innerHTML = '<i class="fa-solid fa-receipt"></i>';
+                        statusIcon.title = "Offene Posten vorhanden";
+                    } else {
+                        statusIcon.classList.remove("status-offen");
+                        statusIcon.classList.add("status-frei");
+                        statusIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                        statusIcon.title = "Tisch frei";
                     }
                 }
             })

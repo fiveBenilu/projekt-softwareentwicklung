@@ -13,18 +13,6 @@
     </div>
 </div>
 
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <div class="alert alert-success mt-2 mb-4">
-            <ul class="mb-0 px-3">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
-{% endwith %}
-
 <!-- Formularkarte Produkt anlegen -->
 <div class="card shadow-sm border-0 mb-5">
     <div class="card-header bg-white border-bottom-0 pt-4">

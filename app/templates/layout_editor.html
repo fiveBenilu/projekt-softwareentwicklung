@@ -9,6 +9,7 @@
         <p class="text-muted">Ziehen Sie die Tische an die gewünschte Position, um das Ladenlayout abzubilden.</p>
     </div>
     <div class="col-md-4 text-md-end">
+        <button id="addTableBtn" class="btn btn-outline-primary mt-3 shadow-sm"><i class="fa-solid fa-plus"></i> Tisch hinzufuegen</button>
         <button id="saveBtn" class="btn btn-success mt-3 shadow-sm btn-lg"><i class="fa-solid fa-floppy-disk"></i> Layout Speichern</button>
     </div>
 </div>
@@ -41,6 +42,7 @@
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         transition: transform 0.1s, box-shadow 0.1s;
         user-select: none;
+        touch-action: none;
     }
     .tisch:active {
         cursor: grabbing;
@@ -74,30 +76,44 @@
             let offsetX = 0;
             let offsetY = 0;
 
-            el.addEventListener('mousedown', function (e) {
+            function clamp(value, min, max) {
+                return Math.min(Math.max(value, min), max);
+            }
+
+            function startDrag(e) {
                 isDragging = true;
-                offsetX = e.clientX - el.offsetLeft;
-                offsetY = e.clientY - el.offsetTop;
-                document.addEventListener('mousemove', move);
-                document.addEventListener('mouseup', stop);
-            });
+                const rect = el.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                el.setPointerCapture(e.pointerId);
+            }
 
             function move(e) {
                 if (!isDragging) return;
+
                 const editorRect = editor.getBoundingClientRect();
-                
-                let newX = e.clientX - offsetX;
-                let newY = e.clientY - offsetY;
+                const maxX = editor.clientWidth - el.offsetWidth;
+                const maxY = editor.clientHeight - el.offsetHeight;
+
+                const newX = clamp(e.clientX - editorRect.left - offsetX, 0, maxX);
+                const newY = clamp(e.clientY - editorRect.top - offsetY, 0, maxY);
 
                 el.style.left = newX + 'px';
                 el.style.top = newY + 'px';
             }
 
-            function stop() {
+            function stop(e) {
+                if (!isDragging) return;
                 isDragging = false;
-                document.removeEventListener('mousemove', move);
-                document.removeEventListener('mouseup', stop);
+                if (typeof e.pointerId !== 'undefined') {
+                    el.releasePointerCapture(e.pointerId);
+                }
             }
+
+            el.addEventListener('pointerdown', startDrag);
+            el.addEventListener('pointermove', move);
+            el.addEventListener('pointerup', stop);
+            el.addEventListener('pointercancel', stop);
 
             editor.appendChild(el);
         });
@@ -130,6 +146,32 @@
         setTimeout(() => {
             const alertElement = document.querySelector('.alert');
             if(alertElement) alertElement.remove();
+        }, 3000);
+    };
+
+    document.getElementById('addTableBtn').onclick = async function () {
+        const res = await fetch('/layout/add-table', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const result = await res.json();
+        const isOk = res.ok;
+        const alertClass = isOk ? 'alert-success' : 'alert-danger';
+
+        const alertHtml = `<div class="alert ${alertClass} alert-dismissible fade show mt-3 shadow-sm" role="alert">
+            <i class="fa-solid fa-circle-info me-2"></i> ${result.message || 'Aktion ausgefuehrt.'}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
+        document.querySelector('.row.mb-4').insertAdjacentHTML('afterend', alertHtml);
+
+        if (isOk) {
+            await ladeTische();
+        }
+
+        setTimeout(() => {
+            const alertElement = document.querySelector('.alert');
+            if (alertElement) alertElement.remove();
         }, 3000);
     };
 

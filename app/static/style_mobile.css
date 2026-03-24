@@ -1,10 +1,14 @@
-body {
-    margin: 0;
-    font-family: 'Patrick Hand', cursive;
-    background-color: #f4f4f4;
-    color: #111;
-    text-align: center;
-  }
+:root {
+  --mobile-bg: #f4f4f4;
+  --mobile-text: #111;
+}
+
+body.mobile-layout {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--mobile-bg);
+  color: var(--mobile-text);
+}
   
   .topbar {
     display: flex;
@@ -20,26 +24,55 @@ body {
     cursor: pointer;
   }
   
-  .branding {
+.branding {
     flex-grow: 1;
     text-align: center;
-  }
+}
   
-  .branding .title {
+.branding .title {
     font-size: 1.6em;
     font-weight: bold;
-  }
+}
   
-  .branding .subtitle {
+.branding .subtitle {
     font-size: 0.8em;
     letter-spacing: 1px;
-  }
+}
   
-  main {
-    padding: 1em;
-  }
+.mobile-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    min-height: 76px;
+    backdrop-filter: blur(6px);
+}
+
+.mobile-topbar .nav-link {
+    width: auto;
+    margin: 0;
+    padding: 0.35rem 0.45rem;
+    font-size: 1.5rem;
+    line-height: 1;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-decoration: none;
+}
+
+.mobile-main {
+    padding-top: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+@supports (padding: max(0px)) {
+    .mobile-topbar {
+        padding-top: max(0.5rem, env(safe-area-inset-top));
+    }
+}
   
-  button, a {
+/* Legacy helpers for old templates (optional usage) */
+.legacy-action {
     display: block;
     width: 80%;
     margin: 1em auto;
@@ -51,8 +84,8 @@ body {
     color: white;
     text-decoration: none;
     transition: background-color 0.2s;
-  }
-  
-  button:hover, a:hover {
+}
+
+.legacy-action:hover {
     background-color: #555;
-  }
+}

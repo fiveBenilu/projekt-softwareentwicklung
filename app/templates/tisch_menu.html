@@ -1,37 +1,132 @@
 {% extends "base_mobile.html" %}
 {% block content %}
-<div class="row g-3">
-  <!-- Option 1: Speisekarte -->
-  <div class="col-12">
-    <a href="{{ url_for('tisch.tisch', tisch_id=tisch_id) }}" class="text-decoration-none">
-      <div class="card shadow-sm border-0 bg-primary text-white text-center py-4 rounded-3 h-100 position-relative overflow-hidden">
-        <div class="card-body">
-            <i class="fa-solid fa-book-open display-4 mb-3"></i>
-            <h3 class="card-title fw-bold m-0" style="font-family: 'Poppins', sans-serif;">Speisekarte</h3>
-            <p class="card-text small opacity-75 mt-2">Jetzt Essen und Getränke bestellen</p>
-        </div>
-        <!-- Decorative bg icon -->
-        <i class="fa-solid fa-utensils position-absolute opacity-25" style="font-size: 8rem; right: -20px; bottom: -20px;"></i>
-      </div>
-    </a>
-  </div>
+<style>
+  .table-home {
+    --surface: #ffffff;
+    --text: #111827;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --primary: #0f172a;
+    --accent: #0f766e;
+    --warning: #d97706;
+    --success: #166534;
+  }
 
-  <div class="col-6">
-    <!-- Option 2: Hilfe / Service rufen -->
-    <form action="{{ url_for('tisch.hilfe', tisch_id=tisch_id) }}" method="post" class="h-100">
-      <button type="submit" class="btn btn-warning w-100 h-100 shadow-sm border-0 d-flex flex-column align-items-center justify-content-center py-4 rounded-3 text-dark">
-        <i class="fa-solid fa-bell fs-1 mb-2"></i>
-        <span class="fw-bold" style="font-family: 'Poppins', sans-serif;">Service rufen</span>
+  .hero {
+    background: linear-gradient(130deg, #0f172a 0%, #1f2937 100%);
+    color: #fff;
+    border-radius: 20px;
+    padding: 1.1rem 1.1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.25);
+  }
+
+  .hero-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .hero-sub {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .main-action {
+    display: block;
+    text-decoration: none;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 1rem;
+    color: var(--text);
+    box-shadow: 0 10px 24px rgba(17, 24, 39, 0.06);
+    margin-bottom: 0.9rem;
+  }
+
+  .main-action .title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  .main-action .sub {
+    margin: 0.2rem 0 0;
+    color: var(--muted);
+    font-size: 0.86rem;
+  }
+
+  .quick-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .quick-btn {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+    padding: 0.9rem 0.6rem;
+    width: 100%;
+    box-shadow: 0 8px 20px rgba(17, 24, 39, 0.06);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .quick-btn .icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    font-size: 1.05rem;
+  }
+
+  .quick-btn.service .icon {
+    background: #fef3c7;
+    color: var(--warning);
+  }
+
+  .quick-btn.bill .icon {
+    background: #dcfce7;
+    color: var(--success);
+  }
+</style>
+
+<div class="table-home">
+  <section class="hero">
+    <div class="hero-title">Tisch {{ tisch_id }}</div>
+    <p class="hero-sub">Was möchtest du als Nächstes tun?</p>
+  </section>
+
+  <a href="{{ url_for('tisch.speisekarte', tisch_id=tisch_id) }}" class="main-action">
+    <div class="d-flex align-items-center justify-content-between gap-3">
+      <div>
+        <p class="title">Speisekarte öffnen</p>
+        <p class="sub">Essen und Getränke auswählen und in den Warenkorb legen.</p>
+      </div>
+      <i class="fa-solid fa-chevron-right text-muted"></i>
+    </div>
+  </a>
+
+  <div class="quick-grid">
+    <form action="{{ url_for('tisch.hilfe', tisch_id=tisch_id) }}" method="post">
+      <button type="submit" class="quick-btn service">
+        <span class="icon"><i class="fa-solid fa-bell-concierge"></i></span><br>
+        Service rufen
       </button>
     </form>
-  </div>
 
-  <div class="col-6">
-     <!-- Option 3: Rechnung anfordern -->
-     <form action="{{ url_for('tisch.rechnung', tisch_id=tisch_id) }}" method="post" class="h-100">
-      <button type="submit" class="btn btn-success w-100 h-100 shadow-sm border-0 d-flex flex-column align-items-center justify-content-center py-4 rounded-3 text-white">
-        <i class="fa-solid fa-money-bill-wave fs-1 mb-2"></i>
-        <span class="fw-bold" style="font-family: 'Poppins', sans-serif;">Rechnung</span>
+    <form action="{{ url_for('tisch.rechnung', tisch_id=tisch_id) }}" method="post">
+      <button type="submit" class="quick-btn bill">
+        <span class="icon"><i class="fa-solid fa-receipt"></i></span><br>
+        Rechnung anfordern
       </button>
     </form>
   </div>

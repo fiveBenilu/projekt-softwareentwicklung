@@ -10,18 +10,6 @@
     </div>
 </div>
 
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <div class="alert alert-success shadow-sm mb-4">
-            <ul class="mb-0 px-3">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
-{% endwith %}
-
 <div class="card shadow-sm border-0 mb-5" style="max-width: 500px;">
     <div class="card-body bg-light rounded m-3">
         <form method="POST" class="d-flex align-items-end gap-3">
