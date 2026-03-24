@@ -42,6 +42,31 @@
     {% block content %}{% endblock %}
   </main>
 
+  <footer class="mobile-privacy-footer">
+    <div class="container-fluid" style="max-width: 600px;">
+      <div class="privacy-card">
+        <details class="privacy-details">
+          <summary class="privacy-summary">
+            <span><i class="fa-solid fa-shield-halved me-2"></i>Datenschutz & Cookies</span>
+            <i class="fa-solid fa-chevron-down privacy-chevron"></i>
+          </summary>
+          <div class="privacy-content">
+            <p class="privacy-text mb-2">
+              Diese Verbindung ist verschluesselt (HTTPS/TLS) und zusaetzlich durch Cloudflare geschuetzt.
+            </p>
+            <p class="privacy-text mb-0">
+              Es werden nur technisch notwendige Daten verarbeitet. Dazu gehoeren uebliche Protokolldaten
+              (z. B. IP-Adresse, Betriebssystem, Browsertyp, Datum/Uhrzeit und angefragte URL) sowie
+              ein von Cloudflare gesetztes Sicherheits-Cookie fuer Schutz- und Verbindungsfunktionen.
+              Weitere Informationen finden Sie bei
+              <a href="https://www.cloudflare.com/de-de/privacypolicy/" target="_blank" rel="noopener noreferrer" class="privacy-link">Cloudflare</a>.
+            </p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </footer>
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

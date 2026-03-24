@@ -65,6 +65,74 @@ body.mobile-layout {
     padding-right: 1rem;
 }
 
+.mobile-privacy-footer {
+  padding: 0 1rem 1.25rem;
+}
+
+.privacy-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 0.85rem 0.95rem;
+  color: #475569;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+}
+
+.privacy-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+
+.privacy-details {
+  margin: 0;
+}
+
+.privacy-summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.privacy-summary::-webkit-details-marker {
+  display: none;
+}
+
+.privacy-chevron {
+  transition: transform 0.2s ease;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.privacy-details[open] .privacy-chevron {
+  transform: rotate(180deg);
+}
+
+.privacy-content {
+  margin-top: 0.6rem;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 0.6rem;
+}
+
+.privacy-text {
+  font-size: 0.76rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.privacy-link {
+  color: #0f766e;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 @supports (padding: max(0px)) {
     .mobile-topbar {
         padding-top: max(0.5rem, env(safe-area-inset-top));

@@ -4,42 +4,75 @@
 
 {% block content %}
 <style>
-    .tisch-card {
-        transition: transform 0.2s;
+    .floor-plan {
         position: relative;
+        min-height: 650px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        background-color: #f8fafc;
+        background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+        background-size: 20px 20px;
+        overflow: auto;
+        padding: 12px;
     }
-    .tisch-card:hover {
-        transform: translateY(-5px);
-    }
-    .tisch-img-wrapper {
+    .floor-canvas {
         position: relative;
-        text-align: center;
-        padding: 10px;
+        min-width: 760px;
+        min-height: 580px;
     }
-    .tisch-img-wrapper img {
-        max-width: 100%;
-        height: auto;
+    .layout-tisch {
+        position: absolute;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    .layout-card {
+        width: 108px;
+        height: 108px;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: transform 0.18s ease;
+    }
+    .layout-card:hover {
+        transform: translateY(-2px);
+    }
+    .layout-chair {
+        font-size: 1.4rem;
+        color: #64748b;
+        margin-bottom: 0.35rem;
+    }
+    .layout-label {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #0f172a;
     }
     .tisch-status-icon {
         position: absolute;
-        top: 50%;
+        bottom: -10px;
         left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 2.5rem;
+        transform: translateX(-50%);
+        font-size: 0.9rem;
         color: #ffffff;
-        background: white;
+        background: #22c55e;
         border-radius: 50%;
-        width: 60px;
-        height: 60px;
+        width: 28px;
+        height: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
         z-index: 10;
         transition: all 0.2s ease;
     }
     .tisch-status-icon:hover {
-        transform: translate(-50%, -50%) scale(1.1);
+        transform: translateX(-50%) scale(1.05);
     }
     .status-offen {
         background: #f59e0b;
@@ -55,10 +88,10 @@
     }
     .tisch-alert-dot {
         position: absolute;
-        top: 12px;
-        right: 12px;
-        width: 24px;
-        height: 24px;
+        top: -8px;
+        right: -8px;
+        width: 22px;
+        height: 22px;
         border-radius: 50%;
         background: #ef4444;
         color: #fff;
@@ -72,6 +105,26 @@
     }
     .tisch-alert-dot.active {
         display: flex;
+    }
+    .legend {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+    }
+    .legend .item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #64748b;
+        font-size: 0.83rem;
+        font-weight: 600;
+    }
+    .legend .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
     }
     .todo-list-container {
         max-height: calc(100vh - 120px);
@@ -87,24 +140,31 @@
             <span class="badge bg-success p-2">Live Update <i class="fa-solid fa-circle-play fa-fade ms-1"></i></span>
         </div>
 
-        <div class="row g-4" id="tischGrid">
-            {% for tisch_id in range(1, anzahl_tische + 1) %}
-            <div class="col-6 col-sm-6 col-md-4 col-xl-3 tisch" data-id="{{ tisch_id }}">
-                <div class="card tisch-card shadow-sm border-0 h-100 bg-white">
-                    <a href="{{ url_for('theke.rechnung_ansehen', tisch_id=tisch_id) }}" class="tisch-link" title="Rechnung fuer Tisch {{ tisch_id }}">
-                        <div class="tisch-img-wrapper">
-                            <img src="{{ url_for('static', filename='img/tisch.png') }}" class="img-fluid" alt="Tisch {{ tisch_id }}">
-                            <div class="tisch-status-icon status-frei"><i class="fa-solid fa-circle-check"></i></div>
-                            <div class="tisch-alert-dot" title="Offene Anforderung"><i class="fa-solid fa-exclamation"></i></div>
-                        </div>
-                        <div class="card-footer bg-light border-0 text-center fw-bold text-dark rounded-bottom d-flex justify-content-center align-items-center gap-2">
-                            <span>Tisch {{ tisch_id }}</span>
-                            <i class="fa-solid fa-file-invoice-dollar text-success"></i>
-                        </div>
-                    </a>
-                </div>
+        <div class="floor-plan" id="tischGrid">
+            <div class="floor-canvas">
+                {% for tisch in tisch_layout %}
+                <a
+                    href="{{ url_for('theke.rechnung_ansehen', tisch_id=tisch.tisch_id|int) }}"
+                    class="layout-tisch tisch"
+                    data-id="{{ tisch.tisch_id }}"
+                    title="Rechnung fuer Tisch {{ tisch.tisch_id }}"
+                    style="left: {{ tisch.pos_x }}px; top: {{ tisch.pos_y }}px; width: {{ tisch.width or 108 }}px; height: {{ tisch.height or 108 }}px;"
+                >
+                    <div class="layout-card" style="width: 100%; height: 100%;">
+                        <i class="fa-solid fa-chair layout-chair"></i>
+                        <span class="layout-label">Tisch {{ tisch.tisch_id }}</span>
+                        <div class="tisch-status-icon status-frei"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="tisch-alert-dot" title="Offene Anforderung"><i class="fa-solid fa-exclamation"></i></div>
+                    </div>
+                </a>
+                {% endfor %}
             </div>
-            {% endfor %}
+        </div>
+
+        <div class="legend">
+            <span class="item"><span class="dot" style="background:#22c55e"></span> Tisch frei</span>
+            <span class="item"><span class="dot" style="background:#f59e0b"></span> Offene Posten</span>
+            <span class="item"><span class="dot" style="background:#ef4444"></span> Offene Anforderung</span>
         </div>
     </div>
 
@@ -207,16 +267,14 @@
                 }
         
                 // 2. Icons bei Tischen aktualisieren
-                const tischAnzahl = {{ anzahl_tische | int }};
-                for (let i = 1; i <= tischAnzahl; i++) {
-                    const tischDiv = document.querySelector(`.tisch[data-id="${i}"]`);
-                    if (!tischDiv) continue;
+                document.querySelectorAll('.tisch[data-id]').forEach((tischDiv) => {
+                    const tischId = tischDiv.dataset.id;
         
                     const statusIcon = tischDiv.querySelector(".tisch-status-icon");
                     const alertDot = tischDiv.querySelector(".tisch-alert-dot");
-                    if (!statusIcon) continue;
+                    if (!statusIcon) return;
 
-                    const eintraege = daten[i] || [];
+                    const eintraege = daten[tischId] || [];
                     const hatOffenePosten = eintraege.some((e) => e.aktion === 'bestellung' || e.aktion === 'bestellung_erfasst');
                     const hatOffeneAnforderung = eintraege.some((e) => e.aktion === 'bestellung' || e.aktion === 'hilfe' || e.aktion === 'rechnung');
 
@@ -235,7 +293,7 @@
                         statusIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
                         statusIcon.title = "Tisch frei";
                     }
-                }
+                });
             })
             .catch(err => console.error("Fehler beim Aktualisieren:", err));
     }
