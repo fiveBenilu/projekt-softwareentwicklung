@@ -14,6 +14,7 @@ class Artikel(db.Model):
     beschreibung = db.Column(db.String(255))
     kategorie = db.Column(db.String(50), nullable=True)
     verfuegbar = db.Column(db.Boolean, default=True)
+    bestellungen = db.relationship('Bestellung', back_populates='artikel_rel')
 
 class CafeSetup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -24,27 +25,33 @@ class CafeSetup(db.Model):
 
 class QRCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    tisch_id = db.Column(db.Integer, nullable=False)
+    tisch_id = db.Column(db.Integer, db.ForeignKey('tisch_layouts.tisch_id'), nullable=False)
     image_path = db.Column(db.String(200), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    tisch_layout = db.relationship('TischLayout', back_populates='qr_codes')
 
 class Bestellung(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    tisch_id = db.Column(db.Integer, nullable=False)
+    tisch_id = db.Column(db.Integer, db.ForeignKey('tisch_layouts.tisch_id'), nullable=False)
     aktion = db.Column(db.String(50), nullable=False)  # "bestellung", "hilfe", "rechnung"
+    artikel_id = db.Column(db.Integer, db.ForeignKey('artikel.id'), nullable=True)
     artikel = db.Column(db.String(100), nullable=True)
     menge = db.Column(db.Integer, nullable=True)
-    zeit = db.Column(db.DateTime, default=get_local_time)  
+    zeit = db.Column(db.DateTime, default=get_local_time)
+    artikel_rel = db.relationship('Artikel', back_populates='bestellungen')
+    tisch_layout = db.relationship('TischLayout', back_populates='bestellungen')
     
 class TischLayout(db.Model):
     __tablename__ = 'tisch_layouts'
 
     id = db.Column(db.Integer, primary_key=True)
-    tisch_id = db.Column(db.String, nullable=False)
+    tisch_id = db.Column(db.Integer, nullable=False, unique=True)
     pos_x = db.Column(db.Integer, nullable=False)
     pos_y = db.Column(db.Integer, nullable=False)
     width = db.Column(db.Integer, default=100)
     height = db.Column(db.Integer, default=100)
+    bestellungen = db.relationship('Bestellung', back_populates='tisch_layout')
+    qr_codes = db.relationship('QRCode', back_populates='tisch_layout')
 
     def to_dict(self):
         return {

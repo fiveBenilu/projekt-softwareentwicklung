@@ -124,7 +124,7 @@ def edit_produkt(produkt_id):
 def dashboard():
     gesamt_aktionen = Bestellung.query.count()
     anzahl_bestellungen = Bestellung.query.filter(
-        Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst'])
+           Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst', 'bestellung_abgeschlossen'])
     ).count()
     anzahl_hilfe = Bestellung.query.filter_by(aktion='hilfe').count()
     anzahl_rechnung = Bestellung.query.filter_by(aktion='rechnung').count()
@@ -132,28 +132,29 @@ def dashboard():
     gesamt_umsatz = db.session.query(
         func.coalesce(func.sum(Bestellung.menge * Artikel.preis), 0.0)
     ).join(
-        Artikel, Bestellung.artikel == Artikel.name
-    ).filter(
-        Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst'])
+        Artikel, Bestellung.artikel_id == Artikel.id
+        ).filter(
+            Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst', 'bestellung_abgeschlossen'])
     ).scalar() or 0.0
 
     top_artikel_raw = db.session.query(
-        Bestellung.artikel,
+        Artikel.name.label('artikel_name'),
         func.sum(Bestellung.menge).label('anzahl'),
         func.coalesce(func.sum(Bestellung.menge * Artikel.preis), 0.0).label('umsatz')
     ).join(
-        Artikel, Bestellung.artikel == Artikel.name
-    ).filter(
-        Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst'])
+        Artikel, Bestellung.artikel_id == Artikel.id
+        ).filter(
+            Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst', 'bestellung_abgeschlossen'])
     ).group_by(
-        Bestellung.artikel
+        Artikel.id,
+        Artikel.name
     ).order_by(
         func.sum(Bestellung.menge).desc()
     ).limit(5).all()
 
     top_artikel = [
         {
-            'name': eintrag.artikel,
+            'name': eintrag.artikel_name,
             'anzahl': int(eintrag.anzahl or 0),
             'umsatz': float(eintrag.umsatz or 0.0)
         }
@@ -164,7 +165,7 @@ def dashboard():
         func.date(Bestellung.zeit).label('tag'),
         func.coalesce(func.sum(Bestellung.menge * Artikel.preis), 0.0).label('umsatz')
     ).join(
-        Artikel, Bestellung.artikel == Artikel.name
+        Artikel, Bestellung.artikel_id == Artikel.id
     ).filter(
         Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst'])
     ).group_by(

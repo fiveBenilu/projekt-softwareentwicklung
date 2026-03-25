@@ -72,13 +72,13 @@ def theke():
         tisch_layout = []
         for eintrag in layout_db:
             tisch_layout.append({
-                'tisch_id': str(eintrag.tisch_id),
+                'tisch_id': eintrag.tisch_id,
                 'pos_x': eintrag.pos_x,
                 'pos_y': eintrag.pos_y,
                 'width': eintrag.width,
                 'height': eintrag.height
             })
-        tisch_layout.sort(key=lambda x: int(x['tisch_id']) if str(x['tisch_id']).isdigit() else 9999)
+        tisch_layout.sort(key=lambda x: x['tisch_id'])
     else:
         tisch_layout = _default_layout(anzahl_tische)
 
@@ -97,9 +97,10 @@ def api_bestellungen():
 
     daten = defaultdict(list)
     for eintrag in bestellungen:
+        artikel_name = eintrag.artikel_rel.name if eintrag.artikel_rel else eintrag.artikel
         daten[str(eintrag.tisch_id)].append({
             "id": eintrag.id,  # 👈 hinzufügen
-            "artikel": eintrag.artikel,
+            "artikel": artikel_name,
             "menge": eintrag.menge,
             "aktion": eintrag.aktion,
             "zeit": eintrag.zeit.strftime("%Y-%m-%d %H:%M:%S")
@@ -136,10 +137,10 @@ def rechnung_ansehen(tisch_id):
     positionen = defaultdict(lambda: {'menge': 0, 'einzelpreis': 0.0})
 
     for eintrag in bestell_eintraege:
-        name = eintrag.artikel or 'Unbekannter Artikel'
+        artikel_obj = eintrag.artikel_rel
+        name = artikel_obj.name if artikel_obj else (eintrag.artikel or 'Unbekannter Artikel')
         menge = int(eintrag.menge or 0)
-        artikel = Artikel.query.filter_by(name=name).first()
-        einzelpreis = float(artikel.preis) if artikel else 0.0
+        einzelpreis = float(artikel_obj.preis) if artikel_obj else 0.0
 
         positionen[name]['menge'] += menge
         positionen[name]['einzelpreis'] = einzelpreis
@@ -170,9 +171,24 @@ def rechnung_ansehen(tisch_id):
 @theke_bp.route('/theke/tisch-abschliessen/<int:tisch_id>', methods=['POST'])
 def tisch_abschliessen(tisch_id):
     try:
-        geloescht = Bestellung.query.filter_by(tisch_id=tisch_id).delete(synchronize_session=False)
+        # Bestellungen fuer Reporting behalten, nur als abgeschlossen markieren.
+        abgeschlossen = Bestellung.query.filter(
+            Bestellung.tisch_id == tisch_id,
+            Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst'])
+        ).update({'aktion': 'bestellung_abgeschlossen'}, synchronize_session=False)
+
+        # Service-/Rechnungs-Events duerfen entfernt werden.
+        geloescht_events = Bestellung.query.filter(
+            Bestellung.tisch_id == tisch_id,
+            Bestellung.aktion.in_(['hilfe', 'rechnung'])
+        ).delete(synchronize_session=False)
+
         db.session.commit()
-        flash(f'Tisch {tisch_id} wurde abgeschlossen. {geloescht} Eintraege entfernt.', 'success')
+        flash(
+            f'Tisch {tisch_id} wurde abgeschlossen. '
+            f'{abgeschlossen} Bestellpositionen archiviert, {geloescht_events} Service-Eintraege entfernt.',
+            'success'
+        )
     except Exception as e:
         db.session.rollback()
         flash(f'Fehler beim Abschliessen von Tisch {tisch_id}: {e}', 'danger')

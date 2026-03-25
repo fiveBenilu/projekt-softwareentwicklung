@@ -78,7 +78,7 @@ def _erstelle_standard_layout(anzahl_tische):
         row = i // spalten
 
         layout = TischLayout(
-            tisch_id=str(tisch_nummer),
+            tisch_id=tisch_nummer,
             pos_x=start_x + (col * abstand_x),
             pos_y=start_y + (row * abstand_y),
             width=100,
@@ -107,7 +107,7 @@ def _synchronisiere_layout_mit_setup(anzahl_tische):
 
         pos_x, pos_y = _berechne_standard_position(tisch_nummer - 1)
         db.session.add(TischLayout(
-            tisch_id=str(tisch_nummer),
+            tisch_id=tisch_nummer,
             pos_x=pos_x,
             pos_y=pos_y,
             width=100,
@@ -135,7 +135,8 @@ def get_layout():
 def save_layout():
     data = request.get_json()
     for tisch in data:
-        layout = TischLayout.query.filter_by(tisch_id=tisch['tisch_id']).first()
+        tisch_id = int(tisch['tisch_id'])
+        layout = TischLayout.query.filter_by(tisch_id=tisch_id).first()
         if layout:
             layout.pos_x = tisch['pos_x']
             layout.pos_y = tisch['pos_y']
@@ -143,7 +144,7 @@ def save_layout():
             layout.height = tisch.get('height', 100)
         else:
             layout = TischLayout(
-                tisch_id=tisch['tisch_id'],
+                tisch_id=tisch_id,
                 pos_x=tisch['pos_x'],
                 pos_y=tisch['pos_y'],
                 width=tisch.get('width', 100),
@@ -168,7 +169,7 @@ def add_table():
     neue_nummer = _naechste_tisch_nummer()
 
     neuer_tisch = TischLayout(
-        tisch_id=str(neue_nummer),
+        tisch_id=neue_nummer,
         pos_x=pos_x,
         pos_y=pos_y,
         width=100,

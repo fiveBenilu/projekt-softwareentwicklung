@@ -5,7 +5,7 @@ import json
 from datetime import datetime
 import uuid
 from app import db
-from app.models import Artikel, Bestellung  # 🔁 DB-Modell importieren
+from app.models import Artikel, Bestellung
 from collections import defaultdict
 
 tisch_bp = Blueprint('tisch', __name__, url_prefix='/tisch')
@@ -65,6 +65,7 @@ def in_warenkorb(tisch_id):
         return redirect(url_for('tisch.speisekarte', tisch_id=tisch_id))
 
     eintrag = {
+        "artikel_id": artikel_obj.id,
         "artikel": artikel_obj.name,
         "menge": int(menge),
         "preis": float(artikel_obj.preis)
@@ -107,7 +108,13 @@ def bestellen(tisch_id):
         return redirect(url_for('tisch.speisekarte', tisch_id=tisch_id))
 
     for eintrag in warenkorb:
-        speichere_bestellung(tisch_id, "bestellung", artikel=eintrag["artikel"], menge=eintrag["menge"])
+        speichere_bestellung(
+            tisch_id,
+            "bestellung",
+            artikel_id=eintrag.get("artikel_id"),
+            artikel=eintrag.get("artikel"),
+            menge=eintrag["menge"]
+        )
 
     session.pop(f'warenkorb_{tisch_id}', None)
     flash("✅ Bestellung wurde gesendet!")
@@ -131,10 +138,11 @@ def rechnung(tisch_id):
 
 
 
-def speichere_bestellung(tisch_id, aktion, artikel=None, menge=None):
+def speichere_bestellung(tisch_id, aktion, artikel_id=None, artikel=None, menge=None):
     bestellung = Bestellung(
         tisch_id=tisch_id,
         aktion=aktion,
+        artikel_id=artikel_id,
         artikel=artikel,
         menge=menge
     )
@@ -148,8 +156,16 @@ def warenkorb_ansehen(tisch_id):
 
     gesamtpreis = 0
     for item in cart:
-        artikel_obj = Artikel.query.filter_by(name=item["artikel"]).first()
+        artikel_obj = None
+        if item.get("artikel_id") is not None:
+            artikel_obj = Artikel.query.get(item["artikel_id"])
+
+        if artikel_obj is None and item.get("artikel"):
+            artikel_obj = Artikel.query.filter_by(name=item["artikel"]).first()
+
         if artikel_obj:
+            item["artikel_id"] = artikel_obj.id
+            item["artikel"] = artikel_obj.name
             item["preis"] = artikel_obj.preis  # Preis wird nur temporär dem dict hinzugefügt
             gesamtpreis += artikel_obj.preis * item["menge"]
         else:
