@@ -60,8 +60,6 @@ def theke():
             tisch_status[tisch_id] = "Bestellung"
         elif letzter.aktion == "hilfe":
             tisch_status[tisch_id] = "Hilfe"
-        elif letzter.aktion == "rechnung":
-            tisch_status[tisch_id] = "Rechnung"
         else:
             tisch_status[tisch_id] = "Frei"
 
@@ -127,46 +125,37 @@ def erledige_bestellung(bestellungs_id):
     return redirect(url_for('theke.theke'))
 
 
-@theke_bp.route('/theke/rechnung/<int:tisch_id>')
-def rechnung_ansehen(tisch_id):
+@theke_bp.route('/theke/tisch/<int:tisch_id>')
+def tisch_ansehen(tisch_id):
     bestell_eintraege = Bestellung.query.filter(
         Bestellung.tisch_id == tisch_id,
         Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst'])
     ).order_by(Bestellung.zeit.asc()).all()
 
-    positionen = defaultdict(lambda: {'menge': 0, 'einzelpreis': 0.0})
+    positionen = defaultdict(lambda: {'menge': 0})
 
     for eintrag in bestell_eintraege:
         artikel_obj = eintrag.artikel_rel
         name = artikel_obj.name if artikel_obj else (eintrag.artikel or 'Unbekannter Artikel')
         menge = int(eintrag.menge or 0)
-        einzelpreis = float(artikel_obj.preis) if artikel_obj else 0.0
 
         positionen[name]['menge'] += menge
-        positionen[name]['einzelpreis'] = einzelpreis
 
-    rechnungs_positionen = []
-    gesamt = 0.0
+    tisch_positionen = []
     for artikel_name, values in positionen.items():
-        zeilen_summe = values['menge'] * values['einzelpreis']
-        gesamt += zeilen_summe
-        rechnungs_positionen.append({
+        tisch_positionen.append({
             'artikel': artikel_name,
             'menge': values['menge'],
-            'einzelpreis': values['einzelpreis'],
-            'summe': zeilen_summe
         })
 
-    rechnungs_positionen.sort(key=lambda x: x['artikel'])
+    tisch_positionen.sort(key=lambda x: x['artikel'])
 
     return render_template(
-        'theke_rechnung.html',
+        'theke_tisch.html',
         tisch_id=tisch_id,
-        positionen=rechnungs_positionen,
-        gesamt=gesamt,
+        positionen=tisch_positionen,
         anzahl_bestellungen=len(bestell_eintraege)
     )
-
 
 @theke_bp.route('/theke/tisch-abschliessen/<int:tisch_id>', methods=['POST'])
 def tisch_abschliessen(tisch_id):
@@ -177,10 +166,10 @@ def tisch_abschliessen(tisch_id):
             Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst'])
         ).update({'aktion': 'bestellung_abgeschlossen'}, synchronize_session=False)
 
-        # Service-/Rechnungs-Events duerfen entfernt werden.
+        # Service-Events duerfen entfernt werden.
         geloescht_events = Bestellung.query.filter(
             Bestellung.tisch_id == tisch_id,
-            Bestellung.aktion.in_(['hilfe', 'rechnung'])
+            Bestellung.aktion.in_(['hilfe'])
         ).delete(synchronize_session=False)
 
         db.session.commit()

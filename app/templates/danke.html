@@ -2,13 +2,12 @@
 
 {% block content %}
 {% set is_hilfe = typ == 'hilfe' %}
-{% set is_rechnung = typ == 'rechnung' %}
-{% set title = 'Danke!' if not is_hilfe and not is_rechnung else ('Service informiert' if is_hilfe else 'Rechnung angefordert') %}
-{% set lead = 'Deine Bestellung für Tisch ' ~ tisch_id ~ ' ist erfolgreich bei uns eingegangen.' if not is_hilfe and not is_rechnung else ('Unser Team wurde benachrichtigt und kommt gleich zu deinem Tisch.' if is_hilfe else 'Wir bereiten deine Rechnung vor und bringen sie in Kürze an den Tisch.') %}
-{% set card_title = 'Wir sind gleich da!' if not is_hilfe and not is_rechnung else ('Service ist unterwegs' if is_hilfe else 'Rechnung folgt gleich') %}
-{% set card_text = 'Unsere Mitarbeiter an der Theke bereiten deine Bestellung jetzt vor. Leh dich zurück und entspanne dich!' if not is_hilfe and not is_rechnung else ('Vielen Dank für dein Signal. Bitte einen Moment Geduld.' if is_hilfe else 'Vielen Dank. Bitte halte dich kurz bereit.') %}
-{% set icon = 'fa-check' if not is_hilfe and not is_rechnung else ('fa-bell-concierge' if is_hilfe else 'fa-receipt') %}
-{% set icon_bg = 'bg-success' if not is_hilfe and not is_rechnung else ('bg-warning text-dark' if is_hilfe else 'bg-primary') %}
+{% set title = 'Danke!' if not is_hilfe else 'Service informiert' %}
+{% set lead = 'Deine Bestellung für Tisch ' ~ tisch_id ~ ' ist erfolgreich bei uns eingegangen.' if not is_hilfe else 'Unser Team wurde benachrichtigt und kommt gleich zu deinem Tisch.' %}
+{% set card_title = 'Wir sind gleich da!' if not is_hilfe else 'Service ist unterwegs' %}
+{% set card_text = 'Unsere Mitarbeiter an der Theke bereiten deine Bestellung jetzt vor. Lehn dich zurück und entspanne dich!' if not is_hilfe else 'Vielen Dank für dein Signal. Bitte einen Moment Geduld.' %}
+{% set icon = 'fa-check' if not is_hilfe else 'fa-bell-concierge' %}
+{% set icon_bg = 'bg-success' if not is_hilfe else 'bg-warning text-dark' %}
 
 <div class="container py-5 mt-4">
     <div class="text-center">

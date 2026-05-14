@@ -181,5 +181,23 @@ def add_table():
     return jsonify({
         "message": f"Tisch {neue_nummer} wurde hinzugefuegt.",
         "table": neuer_tisch.to_dict(),
-        "tables": neue_anzahl
-    }), 201
+        "total_count": neue_anzahl
+    }), 200
+
+@layout_bp.route('/delete-table/<int:tisch_id>', methods=['POST'])
+def delete_table(tisch_id):
+    tisch = TischLayout.query.filter_by(tisch_id=tisch_id).first()
+    if not tisch:
+        return jsonify({"message": f"Tisch {tisch_id} nicht gefunden."}), 404
+        
+    db.session.delete(tisch)
+    db.session.commit()
+    
+    # Optional: Anzahl Tische im Setup anpassen
+    config = _lade_setup_config()
+    aktuelle_anzahl = int(config.get('tische', 0) or 0)
+    if aktuelle_anzahl > 0:
+        config['tische'] = aktuelle_anzahl - 1
+        _speichere_setup_config(config)
+
+    return jsonify({"message": f"Tisch {tisch_id} wurde gelöscht."}), 200

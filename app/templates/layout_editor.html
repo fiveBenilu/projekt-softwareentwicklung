@@ -50,6 +50,11 @@
         box-shadow: 0 8px 15px rgba(0,0,0,0.15);
         z-index: 100;
     }
+    .tisch.selected {
+        border: 2px solid #0d6efd;
+        background-color: #cff4fc;
+        transform: scale(1.02);
+    }
     .tisch i {
         font-size: 1.5rem;
     }
@@ -71,6 +76,23 @@
             el.style.width = tisch.width + 'px';
             el.style.height = tisch.height + 'px';
             el.dataset.id = tisch.tisch_id;
+
+            // Click-Handler zur Auswahl für Löschen
+            el.addEventListener('click', (e) => {
+                document.querySelectorAll('.tisch').forEach(t => t.classList.remove('selected'));
+                el.classList.add('selected');
+                document.getElementById('btnDeleteTable').disabled = false;
+                window.selectedTischIdToDelete = tisch.tisch_id;
+            });
+
+            // Wenn auf den Hintergrund geklickt wird, Auswahl aufheben
+            editor.addEventListener('click', (e) => {
+                if(e.target === editor) {
+                    document.querySelectorAll('.tisch').forEach(t => t.classList.remove('selected'));
+                    document.getElementById('btnDeleteTable').disabled = true;
+                    window.selectedTischIdToDelete = null;
+                }
+            });
 
             let isDragging = false;
             let offsetX = 0;
@@ -174,6 +196,24 @@
             if (alertElement) alertElement.remove();
         }, 3000);
     };
+
+    async function deleteSelectedTable() {
+        if(!window.selectedTischIdToDelete) return;
+        
+        if(confirm(`Möchtest du Tisch ${window.selectedTischIdToDelete} wirklich löschen?`)) {
+            const res = await fetch(`/layout/delete-table/${window.selectedTischIdToDelete}`, {
+                method: 'POST'
+            });
+            if(res.ok) {
+                alert(`Tisch ${window.selectedTischIdToDelete} wurde gelöscht.`);
+                window.selectedTischIdToDelete = null;
+                document.getElementById('btnDeleteTable').disabled = true;
+                ladeTische();
+            } else {
+                alert("Fehler beim Löschen des Tisches.");
+            }
+        }
+    }
 
     ladeTische();
 </script>

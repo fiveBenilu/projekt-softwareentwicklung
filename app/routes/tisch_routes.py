@@ -131,10 +131,7 @@ def hilfe(tisch_id):
     return redirect(url_for('tisch.danke', tisch_id=tisch_id, typ='hilfe'))
 
 
-@tisch_bp.route('/<int:tisch_id>/rechnung', methods=['POST'])
-def rechnung(tisch_id):
-    speichere_bestellung(tisch_id, "rechnung")
-    return redirect(url_for('tisch.danke', tisch_id=tisch_id, typ='rechnung'))
+
 
 
 

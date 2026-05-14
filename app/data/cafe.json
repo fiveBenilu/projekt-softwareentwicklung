@@ -1,7 +1,7 @@
 {
-  "name": "Cafe Bennet",
-  "address": "Test123",
-  "phone": "+49123455677",
+  "name": "Gelato by Madison",
+  "address": "B\u00fcsdorfer Str 7",
+  "phone": "1234567",
   "language": "de",
-  "tische": 7
+  "tische": 10
 }

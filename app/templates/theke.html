@@ -144,11 +144,11 @@
             <div class="floor-canvas">
                 {% for tisch in tisch_layout %}
                 <a
-                    href="{{ url_for('theke.rechnung_ansehen', tisch_id=tisch.tisch_id|int) }}"
+                    href="{{ url_for('theke.tisch_ansehen', tisch_id=tisch.tisch_id|int) }}"
                     class="layout-tisch tisch"
                     data-id="{{ tisch.tisch_id }}"
-                    title="Rechnung fuer Tisch {{ tisch.tisch_id }}"
-                    style="left: {{ tisch.pos_x }}px; top: {{ tisch.pos_y }}px; width: {{ tisch.width or 108 }}px; height: {{ tisch.height or 108 }}px;"
+                    title="Tisch {{ tisch.tisch_id }}"
+                    style="left: {{ tisch.pos_x }}px; top: {{ tisch.pos_y }}px; width: {{ tisch.width or 108 }}px; height: {{ tisch.height or 108 }}px; text-decoration: none; color: inherit;"
                 >
                     <div class="layout-card" style="width: 100%; height: 100%;">
                         <i class="fa-solid fa-chair layout-chair"></i>
@@ -213,22 +213,6 @@
                 let hasItems = false;
         
                 for (const [tisch_id, eintraege] of Object.entries(daten)) {
-                    const hatBestellungen = eintraege.some((e) => e.aktion === 'bestellung');
-
-                    if (hatBestellungen) {
-                        const liRechnung = document.createElement("li");
-                        liRechnung.className = "list-group-item d-flex justify-content-between align-items-center p-3 bg-white";
-                        liRechnung.innerHTML = `
-                            <div>
-                                <div class="fw-bold mb-1">Tisch ${tisch_id} <span class="badge bg-success ms-2">Rechnung moeglich</span></div>
-                                <div class="text-muted small">Bestellungen erfasst - Rechnung kann erstellt werden.</div>
-                            </div>
-                            <a href="/theke/rechnung/${tisch_id}" class="btn btn-success btn-sm">
-                                <i class="fa-solid fa-file-invoice-dollar"></i> Rechnung
-                            </a>
-                        `;
-                        todoContainer.appendChild(liRechnung);
-                    }
 
                     eintraege.forEach((eintrag) => {
                         if (eintrag.aktion === 'bestellung_erfasst') {
@@ -241,7 +225,6 @@
                         let aktionText = eintrag.aktion;
                         if(eintrag.aktion === 'bestellung') { badgeColor = 'bg-primary'; aktionText = "Bestellung"; }
                         else if(eintrag.aktion === 'hilfe') { badgeColor = 'bg-warning text-dark'; aktionText = "Hilfe gerufen"; }
-                        else if(eintrag.aktion === 'rechnung') { badgeColor = 'bg-success'; aktionText = "Rechnung"; }
 
                         const li = document.createElement("li");
                         li.className = "list-group-item d-flex justify-content-between align-items-center p-3";
@@ -276,7 +259,7 @@
 
                     const eintraege = daten[tischId] || [];
                     const hatOffenePosten = eintraege.some((e) => e.aktion === 'bestellung' || e.aktion === 'bestellung_erfasst');
-                    const hatOffeneAnforderung = eintraege.some((e) => e.aktion === 'bestellung' || e.aktion === 'hilfe' || e.aktion === 'rechnung');
+                    const hatOffeneAnforderung = eintraege.some((e) => e.aktion === 'bestellung' || e.aktion === 'hilfe');
 
                     if (alertDot) {
                         alertDot.classList.toggle('active', hatOffeneAnforderung);
@@ -285,7 +268,7 @@
                     if (hatOffenePosten) {
                         statusIcon.classList.remove("status-frei");
                         statusIcon.classList.add("status-offen");
-                        statusIcon.innerHTML = '<i class="fa-solid fa-receipt"></i>';
+                        statusIcon.innerHTML = '<i class="fa-solid fa-utensils"></i>';
                         statusIcon.title = "Offene Posten vorhanden";
                     } else {
                         statusIcon.classList.remove("status-offen");
