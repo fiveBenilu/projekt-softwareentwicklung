@@ -225,6 +225,7 @@
                         let aktionText = eintrag.aktion;
                         if(eintrag.aktion === 'bestellung') { badgeColor = 'bg-primary'; aktionText = "Bestellung"; }
                         else if(eintrag.aktion === 'hilfe') { badgeColor = 'bg-warning text-dark'; aktionText = "Hilfe gerufen"; }
+                        else if(eintrag.aktion === 'rechnung') { badgeColor = 'bg-success'; aktionText = "Rechnung gewuenscht"; }
 
                         const li = document.createElement("li");
                         li.className = "list-group-item d-flex justify-content-between align-items-center p-3";
@@ -259,7 +260,7 @@
 
                     const eintraege = daten[tischId] || [];
                     const hatOffenePosten = eintraege.some((e) => e.aktion === 'bestellung' || e.aktion === 'bestellung_erfasst');
-                    const hatOffeneAnforderung = eintraege.some((e) => e.aktion === 'bestellung' || e.aktion === 'hilfe');
+                    const hatOffeneAnforderung = eintraege.some((e) => e.aktion === 'bestellung' || e.aktion === 'hilfe' || e.aktion === 'rechnung');
 
                     if (alertDot) {
                         alertDot.classList.toggle('active', hatOffeneAnforderung);

@@ -127,6 +127,7 @@ def dashboard():
            Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst', 'bestellung_abgeschlossen'])
     ).count()
     anzahl_hilfe = Bestellung.query.filter_by(aktion='hilfe').count()
+    anzahl_rechnung = Bestellung.query.filter_by(aktion='rechnung').count()
 
     gesamt_umsatz = db.session.query(
         func.coalesce(func.sum(Bestellung.menge * Artikel.preis), 0.0)
@@ -182,6 +183,7 @@ def dashboard():
         gesamt_aktionen=gesamt_aktionen,
         anzahl_bestellungen=anzahl_bestellungen,
         anzahl_hilfe=anzahl_hilfe,
+        anzahl_rechnung=anzahl_rechnung,
         gesamt_umsatz=round(float(gesamt_umsatz), 2),
         top_artikel=top_artikel,
         chart_labels=chart_labels,

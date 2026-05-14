@@ -115,11 +115,18 @@
     </div>
   </a>
 
-  <div class="quick-grid-single">
-    <form action="{{ url_for('tisch.hilfe', tisch_id=tisch_id) }}" method="post" style="width: 100%;">
-      <button type="submit" class="quick-btn service" style="width: 100%;">
+  <div class="quick-grid">
+    <form action="{{ url_for('tisch.hilfe', tisch_id=tisch_id) }}" method="post">
+      <button type="submit" class="quick-btn service">
         <span class="icon"><i class="fa-solid fa-bell-concierge"></i></span><br>
         Service rufen
+      </button>
+    </form>
+
+    <form action="{{ url_for('tisch.rechnung', tisch_id=tisch_id) }}" method="post">
+      <button type="submit" class="quick-btn bill">
+        <span class="icon"><i class="fa-solid fa-receipt"></i></span><br>
+        Rechnung ordern
       </button>
     </form>
   </div>

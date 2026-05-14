@@ -14,6 +14,17 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 BESTELLUNGEN_FILE = os.path.join(DATA_DIR, 'orders.json')
 
 
+def speichere_bestellung(tisch_id, aktion, artikel_id=None, artikel=None, menge=None):
+    bestellung = Bestellung(
+        tisch_id=tisch_id,
+        aktion=aktion,
+        artikel_id=artikel_id,
+        artikel=artikel,
+        menge=menge
+    )
+    db.session.add(bestellung)
+    db.session.commit()
+
 @tisch_bp.route('/<int:tisch_id>', methods=['GET'])
 def tisch(tisch_id):
     return render_template('tisch_menu.html', tisch_id=tisch_id)
@@ -130,21 +141,10 @@ def hilfe(tisch_id):
     speichere_bestellung(tisch_id, "hilfe")
     return redirect(url_for('tisch.danke', tisch_id=tisch_id, typ='hilfe'))
 
-
-
-
-
-
-def speichere_bestellung(tisch_id, aktion, artikel_id=None, artikel=None, menge=None):
-    bestellung = Bestellung(
-        tisch_id=tisch_id,
-        aktion=aktion,
-        artikel_id=artikel_id,
-        artikel=artikel,
-        menge=menge
-    )
-    db.session.add(bestellung)
-    db.session.commit()
+@tisch_bp.route('/<int:tisch_id>/rechnung', methods=['POST'])
+def rechnung(tisch_id):
+    speichere_bestellung(tisch_id, "rechnung")
+    return redirect(url_for('tisch.danke', tisch_id=tisch_id, typ='rechnung'))
 
 @tisch_bp.route('/<int:tisch_id>/warenkorb')
 def warenkorb_ansehen(tisch_id):

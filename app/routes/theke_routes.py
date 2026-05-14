@@ -132,20 +132,27 @@ def tisch_ansehen(tisch_id):
         Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst'])
     ).order_by(Bestellung.zeit.asc()).all()
 
-    positionen = defaultdict(lambda: {'menge': 0})
+    positionen = defaultdict(lambda: {'menge': 0, 'einzelpreis': 0.0})
 
     for eintrag in bestell_eintraege:
         artikel_obj = eintrag.artikel_rel
         name = artikel_obj.name if artikel_obj else (eintrag.artikel or 'Unbekannter Artikel')
         menge = int(eintrag.menge or 0)
+        einzelpreis = float(artikel_obj.preis) if artikel_obj else 0.0
 
         positionen[name]['menge'] += menge
+        positionen[name]['einzelpreis'] = einzelpreis
 
     tisch_positionen = []
+    gesamt = 0.0
     for artikel_name, values in positionen.items():
+        zeilen_summe = values['menge'] * values['einzelpreis']
+        gesamt += zeilen_summe
         tisch_positionen.append({
             'artikel': artikel_name,
             'menge': values['menge'],
+            'einzelpreis': values['einzelpreis'],
+            'summe': zeilen_summe
         })
 
     tisch_positionen.sort(key=lambda x: x['artikel'])
@@ -154,6 +161,7 @@ def tisch_ansehen(tisch_id):
         'theke_tisch.html',
         tisch_id=tisch_id,
         positionen=tisch_positionen,
+        gesamt=gesamt,
         anzahl_bestellungen=len(bestell_eintraege)
     )
 
@@ -166,10 +174,10 @@ def tisch_abschliessen(tisch_id):
             Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst'])
         ).update({'aktion': 'bestellung_abgeschlossen'}, synchronize_session=False)
 
-        # Service-Events duerfen entfernt werden.
+        # Service- und Rechnungs-Events duerfen entfernt werden.
         geloescht_events = Bestellung.query.filter(
             Bestellung.tisch_id == tisch_id,
-            Bestellung.aktion.in_(['hilfe'])
+            Bestellung.aktion.in_(['hilfe', 'rechnung'])
         ).delete(synchronize_session=False)
 
         db.session.commit()
