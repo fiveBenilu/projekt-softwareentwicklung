@@ -129,6 +129,14 @@ def dashboard():
     anzahl_hilfe = Bestellung.query.filter_by(aktion='hilfe').count()
     anzahl_rechnung = Bestellung.query.filter_by(aktion='rechnung').count()
 
+    # Neu: Anzahl verkaufte Artikel gesamt
+    artikel_verkauft = db.session.query(
+        func.sum(Bestellung.menge)
+    ).filter(
+        Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst', 'bestellung_abgeschlossen'])
+    ).scalar() or 0
+    artikel_verkauft = int(artikel_verkauft)
+
     gesamt_umsatz = db.session.query(
         func.coalesce(func.sum(Bestellung.menge * Artikel.preis), 0.0)
     ).join(
@@ -136,6 +144,10 @@ def dashboard():
         ).filter(
             Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst', 'bestellung_abgeschlossen'])
     ).scalar() or 0.0
+
+    durchschnitt_bestellwert = 0.0
+    if anzahl_bestellungen > 0:
+        durchschnitt_bestellwert = float(gesamt_umsatz) / anzahl_bestellungen
 
     top_artikel_raw = db.session.query(
         Artikel.name.label('artikel_name'),
@@ -167,7 +179,7 @@ def dashboard():
     ).join(
         Artikel, Bestellung.artikel_id == Artikel.id
     ).filter(
-        Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst'])
+        Bestellung.aktion.in_(['bestellung', 'bestellung_erfasst', 'bestellung_abgeschlossen'])
     ).group_by(
         func.date(Bestellung.zeit)
     ).order_by(
@@ -185,6 +197,8 @@ def dashboard():
         anzahl_hilfe=anzahl_hilfe,
         anzahl_rechnung=anzahl_rechnung,
         gesamt_umsatz=round(float(gesamt_umsatz), 2),
+        artikel_verkauft=artikel_verkauft,
+        durchschnitt_bestellwert=round(durchschnitt_bestellwert, 2),
         top_artikel=top_artikel,
         chart_labels=chart_labels,
         chart_values=chart_values
