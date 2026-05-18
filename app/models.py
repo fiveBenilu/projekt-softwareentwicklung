@@ -7,6 +7,13 @@ db = SQLAlchemy()
 def get_local_time():
     return datetime.now(pytz.timezone("Europe/Berlin"))
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    is_admin = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=get_local_time)
+
 class Artikel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)

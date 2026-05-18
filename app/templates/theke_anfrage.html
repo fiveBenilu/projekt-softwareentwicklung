@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Anfrage - Tisch {{ eintrag.tisch_id }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{{ url_for('theke.theke') }}" class="btn btn-secondary mb-4">
+            <i class="fa-solid fa-arrow-left"></i> Zurück zur Übersicht
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <div class="bg-{{ action_info.color }} text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    <i class="fa-solid {{ action_info.icon }} fs-3"></i>
+                </div>
+            </div>
+            <div class="col">
+                <h2 class="fw-bold mb-1">Tisch {{ eintrag.tisch_id }}</h2>
+                <p class="text-muted mb-0">{{ action_info.name }}</p>
+            </div>
+            <div class="col-auto text-end">
+                <div class="text-muted small"><i class="fa-regular fa-clock"></i></div>
+                <div class="fw-bold">{{ eintrag.zeit.strftime('%H:%M:%S') }}</div>
+                <div class="text-muted small">{{ eintrag.zeit.strftime('%d.%m.%Y') }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if eintrag.aktion in ['bestellung', 'bestellung_erfasst', 'bestellung_abgeschlossen'] and eintrag.artikel %}
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-light border-bottom pt-3">
+        <h5 class="fw-bold mb-0"><i class="fa-solid fa-list"></i> Bestelldetails</h5>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">Artikel</th>
+                    <th scope="col">Menge</th>
+                    <th scope="col">Betrag</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="fw-bold">{{ eintrag.artikel }}</td>
+                    <td>{{ eintrag.menge }}</td>
+                    <td>
+                        {% if eintrag.artikel_rel %}
+                            {{ "%.2f"|format(eintrag.artikel_rel.preis * eintrag.menge) }} €
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% if eintrag.aktion in ['hilfe'] %}
+<div class="alert alert-warning border-0 rounded-3 d-flex align-items-center gap-3 mb-4">
+    <i class="fa-solid fa-hand-sparkles fa-2x text-warning"></i>
+    <div>
+        <h5 class="mb-1 fw-bold">Service gerufen</h5>
+        <p class="mb-0">Der Gast benötigt Unterstützung.</p>
+    </div>
+</div>
+{% endif %}
+
+{% if eintrag.aktion in ['rechnung'] %}
+<div class="alert alert-success border-0 rounded-3 d-flex align-items-center gap-3 mb-4">
+    <i class="fa-solid fa-file-invoice-dollar fa-2x text-success"></i>
+    <div>
+        <h5 class="mb-1 fw-bold">Rechnung gewünscht</h5>
+        <p class="mb-0">Der Gast möchte bezahlen.</p>
+    </div>
+</div>
+{% endif %}
+
+<div class="mt-4 d-flex gap-2">
+    {% if eintrag.aktion != 'bestellung_abgeschlossen' %}
+    <form method="POST" action="{{ url_for('theke.erledige_bestellung', bestellungs_id=eintrag.id) }}" class="d-inline">
+        <button type="submit" class="btn btn-success"><i class="fa-solid fa-check"></i> Erledigt</button>
+    </form>
+    {% endif %}
+    <a href="{{ url_for('theke.tisch_ansehen', tisch_id=eintrag.tisch_id) }}" class="btn btn-outline-primary">
+        <i class="fa-solid fa-receipt"></i> Gesamte Rechnung anzeigen
+    </a>
+</div>
+{% endblock %}

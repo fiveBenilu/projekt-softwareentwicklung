@@ -14,6 +14,31 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 BESTELLUNGEN_FILE = os.path.join(DATA_DIR, 'orders.json')
 
 
+def get_tisch_count():
+    config_path = os.path.join(DATA_DIR, 'cafe.json')
+    if not os.path.exists(config_path):
+        return 0
+    try:
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+        return int(config.get('tische', 0) or 0)
+    except (ValueError, json.JSONDecodeError):
+        return 0
+
+
+def is_valid_tisch(tisch_id):
+    count = get_tisch_count()
+    return 1 <= tisch_id <= count
+
+
+@tisch_bp.before_request
+def validate_tisch_id():
+    if request.view_args and 'tisch_id' in request.view_args:
+        tisch_id = request.view_args.get('tisch_id')
+        if not is_valid_tisch(tisch_id):
+            return render_template('invalid_tisch.html', tisch_id=tisch_id), 404
+
+
 def speichere_bestellung(tisch_id, aktion, artikel_id=None, artikel=None, menge=None):
     bestellung = Bestellung(
         tisch_id=tisch_id,

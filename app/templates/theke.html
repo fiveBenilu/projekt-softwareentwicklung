@@ -223,23 +223,41 @@
                         
                         let badgeColor = 'bg-secondary';
                         let aktionText = eintrag.aktion;
-                        if(eintrag.aktion === 'bestellung') { badgeColor = 'bg-primary'; aktionText = "Bestellung"; }
-                        else if(eintrag.aktion === 'hilfe') { badgeColor = 'bg-warning text-dark'; aktionText = "Hilfe gerufen"; }
-                        else if(eintrag.aktion === 'rechnung') { badgeColor = 'bg-success'; aktionText = "Rechnung gewuenscht"; }
+                        let aktionIcon = 'fa-question';
+                        if(eintrag.aktion === 'bestellung') { 
+                            badgeColor = 'bg-primary'; 
+                            aktionText = "Bestellung"; 
+                            aktionIcon = 'fa-utensils';
+                        }
+                        else if(eintrag.aktion === 'hilfe') { 
+                            badgeColor = 'bg-warning text-dark'; 
+                            aktionText = "Hilfe gerufen"; 
+                            aktionIcon = 'fa-hand-sparkles';
+                        }
+                        else if(eintrag.aktion === 'rechnung') { 
+                            badgeColor = 'bg-success'; 
+                            aktionText = "Rechnung gewuenscht"; 
+                            aktionIcon = 'fa-file-invoice-dollar';
+                        }
 
                         const li = document.createElement("li");
                         li.className = "list-group-item d-flex justify-content-between align-items-center p-3";
-                        const erledigtButton = `<form action="/theke/erledigt/${eintrag.id}" method="POST" class="m-0">
+                        const erledigtButton = `<form action="/theke/erledigt/${eintrag.id}" method="POST" class="m-0" style="margin-left: auto;">
                                 <button type="submit" class="btn btn-outline-success btn-sm rounded-circle" title="Erledigt" style="width: 38px; height: 38px;">
                                     <i class="fa-solid fa-check"></i>
                                 </button>
                            </form>`;
 
                         li.innerHTML = `
-                            <div>
-                                <div class="fw-bold mb-1">Tisch ${tisch_id} <span class="badge ${badgeColor} ms-2">${aktionText}</span></div>
-                                <div class="text-muted small"><i class="fa-regular fa-clock"></i> ${eintrag.zeit}</div>
-                            </div>
+                            <a href="/theke/anfrage/${eintrag.id}" style="text-decoration: none; color: inherit; flex-grow: 1;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <i class="fa-solid ${aktionIcon}" style="font-size: 1.3rem;"></i>
+                                    <div>
+                                        <div class="fw-bold mb-1">Tisch ${tisch_id} <span class="badge ${badgeColor} ms-2">${aktionText}</span></div>
+                                        <div class="text-muted small"><i class="fa-regular fa-clock"></i> ${eintrag.zeit}</div>
+                                    </div>
+                                </div>
+                            </a>
                             ${erledigtButton}
                         `;
                         todoContainer.appendChild(li);
@@ -270,7 +288,17 @@
                         statusIcon.classList.remove("status-frei");
                         statusIcon.classList.add("status-offen");
                         statusIcon.innerHTML = '<i class="fa-solid fa-utensils"></i>';
-                        statusIcon.title = "Offene Posten vorhanden";
+                        statusIcon.title = "Bestellung offen";
+                    } else if (eintraege.some((e) => e.aktion === 'hilfe')) {
+                        statusIcon.classList.remove("status-frei");
+                        statusIcon.classList.add("status-offen");
+                        statusIcon.innerHTML = '<i class="fa-solid fa-hand-sparkles"></i>';
+                        statusIcon.title = "Service gerufen";
+                    } else if (eintraege.some((e) => e.aktion === 'rechnung')) {
+                        statusIcon.classList.remove("status-frei");
+                        statusIcon.classList.add("status-offen");
+                        statusIcon.innerHTML = '<i class="fa-solid fa-file-invoice-dollar"></i>';
+                        statusIcon.title = "Rechnung gewünscht";
                     } else {
                         statusIcon.classList.remove("status-offen");
                         statusIcon.classList.add("status-frei");

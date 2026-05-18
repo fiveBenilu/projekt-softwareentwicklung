@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Konto anlegen{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h3 class="card-title mb-3"><i class="fa-solid fa-user-plus"></i> Admin-Konto erstellen</h3>
+                <p class="text-muted">Lege das erste Admin-Konto für diese Anwendung an.</p>
+                <form method="POST" class="mt-4">
+                    <div class="mb-3">
+                        <label class="form-label">Benutzername</label>
+                        <input type="text" class="form-control" name="username" placeholder="Admin-Benutzername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Passwort</label>
+                        <input type="password" class="form-control" name="password" placeholder="Passwort" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Passwort wiederholen</label>
+                        <input type="password" class="form-control" name="password_confirm" placeholder="Passwort wiederholen" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-floppy-disk"></i> Admin-Konto anlegen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

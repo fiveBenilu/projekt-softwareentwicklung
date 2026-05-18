@@ -200,8 +200,13 @@
                     <button type="button" id="sidebarCollapse" class="btn btn-primary d-md-none">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-                    <div class="ms-auto">
-                        <span class="avatar-pill"><i class="fa-solid fa-user-shield"></i> Administrator</span>
+                    <div class="ms-auto d-flex align-items-center gap-2">
+                        {% if session.get('admin_logged_in') %}
+                            <span class="avatar-pill"><i class="fa-solid fa-user-shield"></i> {{ session.get('admin_username', 'Administrator') }}</span>
+                            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-secondary btn-sm">Abmelden</a>
+                        {% else %}
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-right-to-bracket"></i> Admin Login</a>
+                        {% endif %}
                     </div>
                 </div>
             </nav>

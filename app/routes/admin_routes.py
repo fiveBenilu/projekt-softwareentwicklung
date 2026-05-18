@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from functools import wraps
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from app import db                    # <-- WICHTIG: Das db aus __init__.py importieren!
 from app.models import Artikel, Bestellung       # <-- Modelle importieren
 from sqlalchemy import func
@@ -7,6 +8,13 @@ import json
 import qrcode
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+@admin_bp.before_request
+def require_admin_login():
+    if request.endpoint and request.endpoint.startswith('admin.'):
+        if not session.get('admin_logged_in'):
+            flash('Bitte melden Sie sich zuerst an.')
+            return redirect(url_for('auth.login', next=request.path))
 
 # -----------------------------
 # QR-Codes generieren
@@ -22,17 +30,29 @@ def qrcodes():
     with open(config_path) as f:
         config = json.load(f)
 
-    tische = config.get("tische", 0)
+    try:
+        tische = int(config.get("tische", 0))
+    except (TypeError, ValueError):
+        tische = 0
+
     output_dir = os.path.join('app', 'static', 'qrcodes')
     os.makedirs(output_dir, exist_ok=True)
 
     generierter_qr = None
+    allowed_tische = list(range(1, max(tische, 0) + 1))
 
     if request.method == 'POST':
-        tisch_id = int(request.form.get('tisch_id'))
-        # Dynamisch die URL für den Tisch generieren
-        url = url_for('tisch.tisch', tisch_id=tisch_id, _external=True)
+        try:
+            tisch_id = int(request.form.get('tisch_id'))
+        except (TypeError, ValueError):
+            flash('Ungültige Tischauswahl.')
+            return redirect(url_for('admin.qrcodes'))
 
+        if tisch_id not in allowed_tische:
+            flash('Der ausgewählte Tisch ist nicht gültig.')
+            return redirect(url_for('admin.qrcodes'))
+
+        url = url_for('tisch.speisekarte', tisch_id=tisch_id, _external=True)
         filename = f"tisch_{tisch_id}.png"
         filepath = os.path.join(output_dir, filename)
 
@@ -45,17 +65,25 @@ def qrcodes():
             "link": url
         }
 
-        flash(f"QR-Code fuer Tisch {tisch_id} wurde generiert.")
+        flash(f"QR-Code für Tisch {tisch_id} wurde erstellt oder aktualisiert.")
 
-    qrs = []
-    for file in sorted(os.listdir(output_dir)):
-        if file.endswith(".png"):
-            qrs.append(file)
+    tisch_statuses = []
+    for tisch_id in allowed_tische:
+        filename = f"tisch_{tisch_id}.png"
+        filepath = os.path.join(output_dir, filename)
+        tisch_statuses.append({
+            'tisch': tisch_id,
+            'filename': filename if os.path.exists(filepath) else None,
+            'link': url_for('tisch.speisekarte', tisch_id=tisch_id, _external=True) if tisch_id in allowed_tische else None
+        })
+
+    qrs = [file for file in sorted(os.listdir(output_dir)) if file.endswith('.png')]
 
     return render_template(
         'admin_qrcodes.html',
         anzahl_tische=tische,
         qrcodes=qrs,
+        tisch_statuses=tisch_statuses,
         generierter_qr=generierter_qr
     )
 

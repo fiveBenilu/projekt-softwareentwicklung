@@ -1,0 +1,14 @@
+{% extends "base_mobile.html" %}
+
+{% block content %}
+<div class="text-center py-5">
+    <div class="mb-4">
+        <i class="fa-solid fa-triangle-exclamation text-danger" style="font-size: 3rem;"></i>
+    </div>
+    <h2 class="fw-bold">Ungültige Tischnummer</h2>
+    <p class="text-muted">Dieser QR-Code gehört zu keinem aktiven Tisch. Bitte prüfen Sie die Tischauswahl oder wenden Sie sich an das Personal.</p>
+    <div class="mt-4">
+        <a href="{{ url_for('home.home') }}" class="btn btn-primary px-4 py-2">Zur Startseite</a>
+    </div>
+</div>
+{% endblock %}

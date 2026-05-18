@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Produkt bearbeiten{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold"><i class="fa-solid fa-pen-to-square text-primary"></i> Produkt bearbeiten</h2>
+        <p class="text-muted">Ändern Sie die Felddaten und speichern Sie anschließend.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{{ url_for('admin.menu') }}" class="btn btn-secondary mt-3"><i class="fa-solid fa-arrow-left"></i> Zurück zur Speisekarte</a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-bottom-0 pt-4">
+        <h5 class="card-title fw-bold"><i class="fa-solid fa-utensils text-success"></i> {{ produkt.name }}</h5>
+    </div>
+    <div class="card-body bg-light rounded m-3">
+        <form method="POST" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Produktname *</label>
+                <input type="text" class="form-control" name="name" value="{{ produkt.name }}" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Preis (€) *</label>
+                <input type="number" class="form-control" name="preis" value="{{ "%.2f"|format(produkt.preis) }}" step="0.01" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Kategorie *</label>
+                <input type="text" class="form-control" name="kategorie" value="{{ produkt.kategorie }}" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Verfügbarkeit</label>
+                <input type="text" class="form-control" value="{{ 'Verfügbar' if produkt.verfuegbar else 'Ausverkauft' }}" readonly>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Beschreibung</label>
+                <textarea class="form-control" name="beschreibung" rows="3">{{ produkt.beschreibung }}</textarea>
+            </div>
+            <div class="col-12 text-end">
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Änderungen speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -125,6 +125,26 @@ def erledige_bestellung(bestellungs_id):
     return redirect(url_for('theke.theke'))
 
 
+@theke_bp.route('/theke/anfrage/<int:bestellungs_id>')
+def anfrage_ansehen(bestellungs_id):
+    eintrag = Bestellung.query.get_or_404(bestellungs_id)
+    
+    icon_map = {
+        'bestellung': {'icon': 'fa-utensils', 'name': 'Bestellung', 'color': 'primary'},
+        'bestellung_erfasst': {'icon': 'fa-utensils', 'name': 'Bestellung erfasst', 'color': 'info'},
+        'bestellung_abgeschlossen': {'icon': 'fa-utensils', 'name': 'Bestellung abgeschlossen', 'color': 'success'},
+        'hilfe': {'icon': 'fa-hand-sparkles', 'name': 'Service gerufen', 'color': 'warning'},
+        'rechnung': {'icon': 'fa-file-invoice-dollar', 'name': 'Rechnung gewünscht', 'color': 'success'}
+    }
+    
+    action_info = icon_map.get(eintrag.aktion, {'icon': 'fa-question', 'name': eintrag.aktion, 'color': 'secondary'})
+    
+    return render_template(
+        'theke_anfrage.html',
+        eintrag=eintrag,
+        action_info=action_info
+    )
+
 @theke_bp.route('/theke/tisch/<int:tisch_id>')
 def tisch_ansehen(tisch_id):
     bestell_eintraege = Bestellung.query.filter(
